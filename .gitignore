@@ -1,0 +1,58 @@
+# --- Build directories ---
+build/
+build*/
+cmake-build*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+CMakePresets.json
+
+# --- Compiled binaries ---
+*.o
+*.a
+*.so
+*.lo
+*.la
+*.out
+*.exe
+*.dll
+
+# --- Generated executables ---
+bin/
+lib/
+
+# --- Logs ---
+*.log
+
+# --- OS / Editor junk ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*.tmp
+
+# --- Visual Studio Code ---
+.vscode/
+.vscode/settings.json
+
+
+
+# --- CLion / JetBrains ---
+.idea/
+*.iml
+
+# --- Docker ---
+# Ignore local build cache or temp outputs
+docker-compose.override.yml
+.dockerignore
+
+# --- Misc ---
+*.cache
+
+# --- Image Data ---
+data/
+db.sqlite
+
