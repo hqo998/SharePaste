@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.14)
 project(ShareNote)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_EXE_LINKER_FLAGS "-static")
 
 include(FetchContent)
 
@@ -34,13 +33,19 @@ add_library(sqlite3_lib STATIC
 )
 
 add_executable(sharenote
-    src/hello.cpp
+    src/backend/main.cpp
     # ... your source files
 )
 
-
+set_target_properties(sharenote PROPERTIES UNITY_BUILD ON) #Use unity builds which lump files together to compile quicker
+target_precompile_headers(sharenote PRIVATE <vector> <string> <sqlite3.h> <httplib.h>) #precompile headers to speed up compilation.
 
 target_link_libraries(sharenote PRIVATE sqlite3_lib)
+
+# Make build static on Linux
+if (UNIX AND NOT APPLE)
+    target_link_options(sharenote PRIVATE -static)
+endif()
 
 target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
 target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 SQLITE_ENABLE_COLUMN_METADATA=1)

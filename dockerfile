@@ -2,9 +2,11 @@
 FROM debian:trixie-slim AS build
 
 # Install build-essential for compiling C++ code
-RUN apt-get update && apt-get install -y build-essential \
+RUN apt-get update && apt-get install -y \
+    build-essential \
     clang \
-    cmake
+    cmake \
+    ninja-build
 
 # Set the working directory
 WORKDIR /app
@@ -18,9 +20,11 @@ RUN mkdir build
 WORKDIR /app/build
 
 # Compile the C++ code statically to ensure it doesn't depend on runtime libraries
-# RUN clang++ -std=c++20  src/hello.cpp -static -O3 -o hello
 
-RUN cmake -DCMAKE_BUILD_TYPE=Release .. \
+# RUN cmake -DCMAKE_BUILD_TYPE=Release .. \
+#     && cmake --build . -- -j$(nproc)
+
+RUN cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. \
     && cmake --build . -- -j$(nproc)
 
 
@@ -30,6 +34,13 @@ FROM scratch
 # Copy the static binary from the build stage
 # COPY --from=build /app/hello /hello
 COPY --from=build /app/build/sharenote /sharenote
+
+
+# Expose the port on which the API will listen
+EXPOSE 8080
+
+# MAake sure sharenote exists
+RUN ["/sharenote", "--help"]
 
 # Command to run the binary
 CMD ["/sharenote"]
