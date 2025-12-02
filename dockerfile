@@ -37,7 +37,7 @@ COPY --from=build /app/build/sharenote /sharenote
 
 
 # Expose the port on which the API will listen
-EXPOSE 8080
+EXPOSE 80
 
 # MAake sure sharenote exists
 RUN ["/sharenote", "--help"]
