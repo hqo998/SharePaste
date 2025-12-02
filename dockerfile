@@ -21,7 +21,7 @@ WORKDIR /app/build
 
 # Compile the C++ code statically to ensure it doesn't depend on runtime libraries
 
-# RUN cmake -DCMAKE_BUILD_TYPE=Release .. \
+# RUN cmake -DCMAKE_BUILD_TYPE=Release .. 
 #     && cmake --build . -- -j$(nproc)
 
 RUN cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. \

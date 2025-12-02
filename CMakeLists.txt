@@ -9,14 +9,13 @@ set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
 set(EXTERNAL_DIR ${CMAKE_BINARY_DIR}/external)
 file(MAKE_DIRECTORY ${EXTERNAL_DIR})
 
-# # Fetch cpp-httplib
-set(HTTPLIB_URL "https://raw.githubusercontent.com/yhirose/cpp-httplib/master/httplib.h")
+# Fetch cpp-httplib v0.28.0
+set(HTTPLIB_URL "https://raw.githubusercontent.com/yhirose/cpp-httplib/v0.28.0/httplib.h")
 set(HTTPLIB_FILE "${EXTERNAL_DIR}/httplib.h")
 
-if(NOT EXISTS ${HTTPLIB_FILE})
-    message(STATUS "Downloading httplib.h...")
-    file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
-endif()
+
+message(STATUS "Downloading cpp-httplib v0.28.0...")
+file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
 
 include_directories(${EXTERNAL_DIR})
 
