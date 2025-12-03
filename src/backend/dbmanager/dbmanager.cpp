@@ -3,6 +3,7 @@
 #include <format>
 #include <sqlite3.h>
 
+
 #include "dbmanager.h"
 
 
@@ -80,7 +81,7 @@ void managerSQL::closeDB()
 
 
 
-int example()
+void example()
 {
     managerSQL database;
 
@@ -99,5 +100,4 @@ int example()
     database.deleteData(tableName, id);
 
     database.closeDB();
-
 }
