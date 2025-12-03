@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(ShareNote)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 include(FetchContent)
 
@@ -50,5 +50,5 @@ target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
 target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 SQLITE_ENABLE_COLUMN_METADATA=1)
 
 #copy frontend to build folder
-file(COPY ${CMAKE_SOURCE_DIR}/src/frontend
+file(COPY ${CMAKE_SOURCE_DIR}/src/frontend/
      DESTINATION ${CMAKE_BINARY_DIR}/www)
