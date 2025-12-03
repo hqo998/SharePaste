@@ -33,6 +33,7 @@ add_library(sqlite3_lib STATIC
 
 add_executable(sharenote
     src/backend/main.cpp
+    src/backend/dbmanager/dbmanager.cpp
     # ... your source files
 )
 
