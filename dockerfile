@@ -27,20 +27,25 @@ WORKDIR /app/build
 RUN cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. \
     && cmake --build . -- -j$(nproc)
 
+# Logging to make sure build files exist
+RUN ls -l /app/build
+RUN ls -l /app/build/bin
+RUN ls -l /app/build/bin/www
 
 # Stage 2: Runtime stage
 FROM scratch
 
 # Copy the static binary from the build stage
-# COPY --from=build /app/hello /hello
-COPY --from=build /app/build/sharenote /sharenote
+COPY --from=build /app/build/bin/sharepaste /sharepaste
 
+# Copy the front end files
+COPY --from=build /app/build/bin/www /www
 
 # Expose the port on which the API will listen
 EXPOSE 80
 
-# MAake sure sharenote exists
-RUN ["/sharenote", "--help"]
+# MAake sure sharepaste exists
+RUN ["/sharepaste", "--test"]
 
 # Command to run the binary
-CMD ["/sharenote"]
+CMD ["/sharepaste"]

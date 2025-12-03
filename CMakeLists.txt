@@ -1,9 +1,14 @@
 cmake_minimum_required(VERSION 3.14)
-project(ShareNote)
+project(SharePastee)
 
 set(CMAKE_CXX_STANDARD 23)
 
 include(FetchContent)
+
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
 set(EXTERNAL_DIR ${CMAKE_BINARY_DIR}/external)
@@ -31,25 +36,29 @@ add_library(sqlite3_lib STATIC
     ${sqlite3_SOURCE_DIR}/sqlite3.c
 )
 
-add_executable(sharenote
+add_executable(sharepaste
     src/backend/main.cpp
     src/backend/dbmanager/dbmanager.cpp
     # ... your source files
 )
 
-set_target_properties(sharenote PROPERTIES UNITY_BUILD ON) #Use unity builds which lump files together to compile quicker
-target_precompile_headers(sharenote PRIVATE <vector> <string> <sqlite3.h> <httplib.h>) #precompile headers to speed up compilation.
+set_target_properties(sharepaste PROPERTIES UNITY_BUILD ON) #Use unity builds which lump files together to compile quicker
+target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <httplib.h>) #precompile headers to speed up compilation.
 
-target_link_libraries(sharenote PRIVATE sqlite3_lib)
+target_link_libraries(sharepaste PRIVATE sqlite3_lib)
 
 # Make build static on Linux
 if (UNIX AND NOT APPLE)
-    target_link_options(sharenote PRIVATE -static)
+    target_link_options(sharepaste PRIVATE -static)
 endif()
 
 target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
 target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 SQLITE_ENABLE_COLUMN_METADATA=1)
 
-#copy frontend to build folder
-file(COPY ${CMAKE_SOURCE_DIR}/src/frontend/
-     DESTINATION ${CMAKE_BINARY_DIR}/www)
+#copy frontend to build folder regardless of configuration
+add_custom_command(
+    TARGET sharepaste POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/src/frontend
+        $<TARGET_FILE_DIR:sharepaste>/www
+)
