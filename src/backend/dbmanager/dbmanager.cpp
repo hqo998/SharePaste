@@ -41,13 +41,14 @@ void managerSQL::createPasteTable()
     execute(createTableCommand);
 }
 
-void managerSQL::execute(const std::string& Command)
+void managerSQL::execute(const std::string& command)
 {
     char* errMsg;
-    int rc = sqlite3_exec(db, Command.c_str(), NULL, 0, &errMsg);
+    int rc = sqlite3_exec(db, command.c_str(), NULL, 0, &errMsg);
     if (rc != SQLITE_OK)
     {
         std::cerr << "[DB Execute] Error in executing command: " <<  errMsg << "\n";
+        std::cerr << command << "\n";
         sqlite3_free(errMsg);
     }
     else
@@ -59,56 +60,20 @@ void managerSQL::execute(const std::string& Command)
 
 void managerSQL::createTable(const std::string_view& tableName, const std::string_view& columns)
 {
-    char* errMsg;
     std::string sql = std::format("CREATE TABLE IF NOT EXISTS {0}({1});", tableName, columns);
-    int rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
-    if (rc != SQLITE_OK)
-    {
-        std::cerr << "Error in executing CREATE TABLE SQL: " <<  errMsg << "\n";
-        sqlite3_free(errMsg);
-    }
-    else
-    {
-        std::cout << "table " << tableName << " made successfully" << '\n';
-
-    }
+    execute(sql);
 }
 
 void managerSQL::insertData(const std::string_view& tableName, const std::string_view& columns, const std::string_view& fields)
 {
-    char* errMsg;
     std::string sql = std::format("INSERT OR IGNORE INTO {0}({1}) VALUES{2};", tableName, columns, fields);
-    int rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
-    if (rc != SQLITE_OK)
-    {
-        std::cerr << "Error in executing INSERT SQL: " << errMsg << "\n";
-        //free the error message
-        sqlite3_free(errMsg);
-    }
-    else
-    {
-        std::cout << "Insert operation successful" << '\n';
-
-    }
+    execute(sql);
 }
 
 void managerSQL::deleteData(const std::string_view& tableName, int id)
 {
-    char* errMsg;
     std::string sql = std::format("DELETE FROM '{0}' WHERE ID={1};", tableName, std::to_string(id));
-
-    int rc = sqlite3_exec(db, sql.c_str(), NULL, 0, &errMsg);
-    if (rc != SQLITE_OK)
-    {
-        std::cerr << "Error in executing DELETE SQL: " << errMsg << "\n";
-        //free the error message
-        sqlite3_free(errMsg);
-    }
-    else 
-    {
-        std::cout << "Delete operation successful" << '\n';
-
-    }
+    execute(sql);
 }
 
 void managerSQL::closeDB()
