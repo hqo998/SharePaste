@@ -47,5 +47,6 @@ EXPOSE 80
 # MAake sure sharepaste exists
 RUN ["/sharepaste", "--test"]
 
+
 # Command to run the binary
 CMD ["/sharepaste"]

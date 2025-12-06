@@ -7,16 +7,17 @@
 #include "dbmanager.h"
 
 
-void managerSQL::openDB(std::string& filename)
+void managerSQL::openDB(const std::string& filename)
 {
+
     int opened = sqlite3_open(filename.c_str(), &db);
     if (opened)
     {
-        std::cerr << "Failed to open DB: " << sqlite3_errmsg(db) << "\n";
+        std::cerr << "[DB Open] Failed to open DB: " << sqlite3_errmsg(db) << "\n";
     }
     else
     {
-        std::cout << "Opened Succesfully" << "\n";
+        std::cout << "[DB Open] Opened Succesfully" << "\n";
     }
 }
 

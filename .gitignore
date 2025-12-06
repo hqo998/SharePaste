@@ -37,8 +37,7 @@ Thumbs.db
 # --- Visual Studio Code ---
 .vscode/
 .vscode/settings.json
-
-
+.vs
 
 # --- CLion / JetBrains ---
 .idea/

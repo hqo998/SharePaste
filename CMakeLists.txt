@@ -36,24 +36,28 @@ add_library(sqlite3_lib STATIC
     ${sqlite3_SOURCE_DIR}/sqlite3.c
 )
 
+target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
+target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 SQLITE_ENABLE_COLUMN_METADATA=1)
+
+
 add_executable(sharepaste
     src/backend/main.cpp
     src/backend/dbmanager/dbmanager.cpp
     # ... your source files
 )
 
-set_target_properties(sharepaste PROPERTIES UNITY_BUILD ON) #Use unity builds which lump files together to compile quicker
+set_target_properties(sharepaste PROPERTIES UNITY_BUILD OFF) #Use unity builds which lump files together to compile quicker
 target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <httplib.h>) #precompile headers to speed up compilation.
 
 target_link_libraries(sharepaste PRIVATE sqlite3_lib)
+target_include_directories(sharepaste PUBLIC ${CMAKE_SOURCE_DIR}/src/backend/dbmanager)
 
 # Make build static on Linux
 if (UNIX AND NOT APPLE)
     target_link_options(sharepaste PRIVATE -static)
 endif()
 
-target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
-target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 SQLITE_ENABLE_COLUMN_METADATA=1)
+
 
 #copy frontend to build folder regardless of configuration
 add_custom_command(

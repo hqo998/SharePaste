@@ -1,11 +1,13 @@
 #include <iostream>
 #include <print>
 #include <string>
+#include <string_view>
 #include <filesystem>
 
 #include <sqlite3.h>
 #include <httplib.h>
 
+#include <dbmanager.h>
 
 void getRequestAPI(const httplib::Request &, httplib::Response &res)
 {
@@ -24,8 +26,8 @@ void checkMissingFrontend()
 {
     std::println("[TEST] Looking for web frontend");
 
-    const std::string webroot = "./www";
-    if (!std::filesystem::exists(webroot))
+    const std::string webRoot = "./www";
+    if (!std::filesystem::exists(webRoot))
     {
         std::println("[WARNING] Web directory not found");
         std::exit(-1);
@@ -50,31 +52,51 @@ void checkMissingFiles()
     checkMissingFrontend();
 }
 
+std::string databasePath(std::string_view filename, std::string_view subfolder)
+{
+    std::println("[Test] Checking for database folder");
+
+    std::string folderpathExists { std::format("./{}", subfolder)};
+    if (!std::filesystem::exists(folderpathExists))
+    {
+        std::filesystem::create_directory(folderpathExists);
+
+        std::println("[Pass] Creating database folder");
+    }
+
+    std::println("[Pass] Found database folder");
+    return std::format("./{}/{}", subfolder, filename);
+}
+    
+
 int main(int argc, char* argv[])
 {
-    // TO-DO get this cli arguement working for testing during docker build
-    if (argc > 0)
+    if (argc > 1) // Check CLI arguements
     {
-        if (argv[1] == "--test")
+        if (strcmp(argv[1], "--test") == 0)
         {
-            std::println("[START] Running Tests Only");
+            std::println("[START] Running --tests");
             checkMissingFiles();
             exit(0);
         }
     }
-    std::println("Argc {}, argv {}", argc, argv[1]);
     
+
     std::println("[START] Beginning SharePaste");
 
     httplib::Server svr;
+    managerSQL database;
 
-    checkMissingFiles();
+    const std::string database_filename = "sharepaste.db";
+    const std::string database_subfolder = "data";
+
+    database.openDB(databasePath(database_filename, database_subfolder));
 
     std::println("[Register] Adding get /api");
     svr.Get("/api", getRequestAPI);
 
     std::println("[Register] Adding get /");
-    svr.Get(R"(/.*)", serveFrontEnd);
+    svr.Get(R"(/)", serveFrontEnd);
 
     std::string host  = "0.0.0.0";
     int port = 80;
