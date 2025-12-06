@@ -1,4 +1,4 @@
-#include <iostream>
+
 #include <print>
 #include <string>
 #include <string_view>
@@ -90,7 +90,9 @@ int main(int argc, char* argv[])
     const std::string database_filename = "sharepaste.db";
     const std::string database_subfolder = "data";
 
-    database.openDB(databasePath(database_filename, database_subfolder));
+    database.connect(databasePath(database_filename, database_subfolder));
+
+    database.createPasteTable();
 
     std::println("[Register] Adding get /api");
     svr.Get("/api", getRequestAPI);

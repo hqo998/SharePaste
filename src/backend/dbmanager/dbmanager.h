@@ -9,7 +9,9 @@ class managerSQL
 public:
     sqlite3* db = nullptr;
 
-    void openDB(const std::string& filename);
+    void connect(const std::string& filename);
+    void createPasteTable();
+    void execute(const std::string &Command);
     void closeDB();
     void createTable(const std::string_view& tableName, const std::string_view& columns);
     void insertData(const std::string_view& tableName, const std::string_view& columns, const std::string_view& fields);
