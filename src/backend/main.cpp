@@ -9,6 +9,8 @@
 
 #include <dbmanager.h>
 
+managerSQL G_DATABASE;
+
 void getRequestAPI(const httplib::Request &, httplib::Response &res)
 {
     std::println("[GET] Request API");
@@ -84,21 +86,20 @@ int main(int argc, char* argv[])
 
     std::println("[START] Beginning SharePaste");
 
-    httplib::Server svr;
-    managerSQL database; 
+    httplib::Server svr; 
 
     const std::string database_subfolder = "data";
     const std::string database_filename = "sharepaste.db";
  
 
-    database.connect(databasePath(database_subfolder, database_filename));
+    G_DATABASE.connect(databasePath(database_subfolder, database_filename));
 
-    database.createPasteTable();
+    G_DATABASE.createPasteTable();
 
-    std::println("[Register] Adding get /api");
+    std::println("[Register] Adding get /api handler");
     svr.Get("/api", getRequestAPI);
 
-    std::println("[Register] Adding get /");
+    std::println("[Register] Adding get / handler");
     svr.Get(R"(/)", getServeFrontEnd);
 
     std::string host  = "0.0.0.0";
