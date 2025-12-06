@@ -44,7 +44,7 @@ void managerSQL::createPasteTable()
 
 void managerSQL::execute(const std::string& command)
 {
-    char* errMsg;
+    char* errMsg = nullptr;
     int rc = sqlite3_exec(db, command.c_str(), NULL, 0, &errMsg);
     if (rc != SQLITE_OK)
     {
