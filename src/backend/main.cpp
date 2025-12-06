@@ -15,7 +15,7 @@ void getRequestAPI(const httplib::Request &, httplib::Response &res)
     res.set_content("Hello world!", "text/plain");
 }
 
-void serveFrontEnd(const httplib::Request &, httplib::Response &res)
+void getServeFrontEnd(const httplib::Request &, httplib::Response &res)
 {
     std::println("[GET] Request FrontEnd");
     res.set_file_content("./www/index.html", "text/html");
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
     svr.Get("/api", getRequestAPI);
 
     std::println("[Register] Adding get /");
-    svr.Get(R"(/)", serveFrontEnd);
+    svr.Get(R"(/)", getServeFrontEnd);
 
     std::string host  = "0.0.0.0";
     int port = 80;
@@ -111,5 +111,4 @@ int main(int argc, char* argv[])
                   << ". Maybe another program is using it?\n";
         return -1;
     }
-    
 }
