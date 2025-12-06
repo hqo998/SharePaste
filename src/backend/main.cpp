@@ -52,7 +52,7 @@ void checkMissingFiles()
     checkMissingFrontend();
 }
 
-std::string databasePath(std::string_view filename, std::string_view subfolder)
+std::string databasePath(std::string_view subfolder, std::string_view filename)
 {
     std::println("[Test] Checking for database folder");
 
@@ -85,12 +85,13 @@ int main(int argc, char* argv[])
     std::println("[START] Beginning SharePaste");
 
     httplib::Server svr;
-    managerSQL database;
+    managerSQL database; 
 
-    const std::string database_filename = "sharepaste.db";
     const std::string database_subfolder = "data";
+    const std::string database_filename = "sharepaste.db";
+ 
 
-    database.connect(databasePath(database_filename, database_subfolder));
+    database.connect(databasePath(database_subfolder, database_filename));
 
     database.createPasteTable();
 

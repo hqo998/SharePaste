@@ -7,6 +7,7 @@
 
 #include "dbmanager.h"
 
+// to do - make a insert data that can prepare statements
 
 void managerSQL::connect(const std::string& filename)
 {
