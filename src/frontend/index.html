@@ -1,8 +1,28 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">   
  <head>
-  <title>website title</title>
+  <meta charset="UTF-8">
+  <title>SharePaste</title>
+  <link rel="stylesheet" href="style.css">
  </head>
  <body>
-  content of website ...
+  <!-- Headers and what not -->
+  <header class="headerBar">
+    <button id="newButton">New</button>
+    <button id="ShareButton">Share</button>
+  </header>
+
+  <!-- Text field stuff-->
+  <form action="/api/new" method="GET">
+    <button type="submit">Save & Share</button>
+    <label for="pasteBox">Here</label>
+    <br>
+    <textarea id="pasteBox"
+              name="pasteText"
+              placeholder=""
+              maxlength="30000"
+              style="width:100%; height:90vh;"></textarea>
+
+  </form>
  </body>
 </html>
