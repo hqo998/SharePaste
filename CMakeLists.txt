@@ -46,7 +46,9 @@ add_executable(sharepaste
     # ... your source files
 )
 
-set_target_properties(sharepaste PROPERTIES UNITY_BUILD OFF) #Use unity builds which lump files together to compile quicker
+# optimisation stuff
+set_target_properties(sharepaste PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+set_target_properties(sharepaste PROPERTIES UNITY_BUILD OFF) #Use unity builds which lump files together to compile quicker but makes debugger harder
 target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <httplib.h>) #precompile headers to speed up compilation.
 
 target_link_libraries(sharepaste PRIVATE sqlite3_lib)
