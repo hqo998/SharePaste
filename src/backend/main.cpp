@@ -102,6 +102,12 @@ int main(int argc, char* argv[])
     std::println("[Register] Adding get / handler");
     svr.Get(R"(/)", getServeFrontEnd);
 
+    auto ret = svr.set_mount_point("/", "./www");
+    if (!ret)
+    {
+        std::println("Cant mount /www to ./");
+    }
+
     std::string host  = "0.0.0.0";
     int port = 80;
 
