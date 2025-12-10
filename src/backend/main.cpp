@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     G_DATABASE.createPasteTable();
 
     std::println("[Register] Adding get /api handler");
-    svr.Get("/api", getRequestAPI);
+    svr.Post("/api", getRequestAPI);
 
     std::println("[Register] Adding get / handler");
     svr.Get(R"(/)", getServeFrontEnd);

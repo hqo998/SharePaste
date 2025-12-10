@@ -1,8 +1,22 @@
 document.getElementById("shareButton").addEventListener("click", function () {
-    // Simulated link — replace this with the link your server generates
-    const generatedLink = "https://sharepaste.example/p/abcde12345";
+    const pasteRequest = document.getElementById("pasteBox").value;
 
-    document.getElementById("shareLink").value = generatedLink;
+    fetch("/api", {
+        method: "POST",
+        headers: {
+            "Content-type": "application/json; charset=UTF-8"
+        },
+        body: JSON.stringify({ pasteBody: pasteRequest })
+        })
+
+    .then((response) => response.json())
+
+    .post((json) => {document.getElementById("shareLink").value = json.link;})
+    
+    // // Simulated link — replace this with the link your server generates
+    // const generatedLink = "https://sharepaste.example/p/abcde12345";
+
+    // document.getElementById("shareLink").value = generatedLink;
 });
 
 document.getElementById("newButton").addEventListener("click", function () {
