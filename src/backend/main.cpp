@@ -40,13 +40,19 @@ std::string generateRandomString(size_t length)
 }
 
 
-void getRequestAPI(const httplib::Request &, httplib::Response &res)
+void postRequestNewPaste(const httplib::Request &, httplib::Response &res)
 {
-    std::println("[GET] Request API");
+    
 
     int codeLength {10};   
     std::string uniqueCode = std::format("{}", generateRandomString(codeLength));
-    res.set_content("Hello world!", "text/plain");
+
+
+
+    std::string shareLink = std::format("https://paste.charlestail.net/p/{}", uniqueCode);
+    res.set_content(shareLink, "text/plain");
+
+    std::println("[POST] Request New Paste Entry - {}", shareLink);
 }
 
 void getServeFrontEnd(const httplib::Request &, httplib::Response &res)
@@ -128,7 +134,7 @@ int main(int argc, char* argv[])
     G_DATABASE.createPasteTable();
 
     std::println("[Register] Adding get /api handler");
-    svr.Post("/api", getRequestAPI);
+    svr.Post("/api", postRequestNewPaste);
 
     std::println("[Register] Adding get / handler");
     svr.Get(R"(/)", getServeFrontEnd);
