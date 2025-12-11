@@ -3,6 +3,8 @@
 #include <string>
 #include <string_view>
 #include <filesystem>
+#include <random>
+#include <algorithm>
 
 #include <sqlite3.h>
 #include <httplib.h>
@@ -11,9 +13,39 @@
 
 managerSQL G_DATABASE;
 
+
+std::string generateRandomString(size_t length)
+{
+    const std::string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    std::random_device randomDevice;
+    std::mt19937 generator(randomDevice());
+
+    /*
+    std::string randomString(characters);
+    std::shuffle(randomString.begin(), randomString.end(), generator);
+    
+    return randomString.substr(0, length);
+    */
+
+    std::uniform_int_distribution<size_t> distribution(0, characters.size() - 1);
+
+    std::string randomString;
+    for (size_t i = 0; i < length; i++)
+    {
+        randomString += characters[distribution(generator)];
+    }
+
+    return randomString;
+    
+}
+
+
 void getRequestAPI(const httplib::Request &, httplib::Response &res)
 {
     std::println("[GET] Request API");
+
+    int codeLength {10};   
+    std::string uniqueCode = std::format("{}", generateRandomString(codeLength));
     res.set_content("Hello world!", "text/plain");
 }
 
@@ -83,7 +115,6 @@ int main(int argc, char* argv[])
         }
     }
     
-
     std::println("[START] Beginning SharePaste");
 
     httplib::Server svr; 

@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(SharePastee)
 
 set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
 
 include(FetchContent)
 

@@ -12,8 +12,6 @@ document.getElementById("shareButton").addEventListener("click", function () {
     .then((response) => response.text())
 
     .then((link) => {document.getElementById("shareLink").value = link;})
-    
-    .catch
 });
 
 document.getElementById("newButton").addEventListener("click", function () {
