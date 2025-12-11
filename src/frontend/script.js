@@ -9,16 +9,14 @@ document.getElementById("shareButton").addEventListener("click", function () {
         body: JSON.stringify({ pasteBody: pasteRequest })
         })
 
-    .then((response) => response.json())
+    .then((response) => response.text())
 
-    .post((json) => {document.getElementById("shareLink").value = json.link;})
-
-    // placeholder text
-    // const generatedLink = "https://sharepaste.example/p/abcde12345";
-    // document.getElementById("shareLink").value = generatedLink;
+    .then((link) => {document.getElementById("shareLink").value = link;})
+    
 });
 
 document.getElementById("newButton").addEventListener("click", function () {
+
     const emptyText = "";
     document.getElementById("pasteBox").value = emptyText;
 });
