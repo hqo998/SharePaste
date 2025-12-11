@@ -13,6 +13,7 @@ document.getElementById("shareButton").addEventListener("click", function () {
 
     .then((link) => {document.getElementById("shareLink").value = link;})
     
+    .catch
 });
 
 document.getElementById("newButton").addEventListener("click", function () {
