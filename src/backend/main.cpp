@@ -51,7 +51,7 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
 
     std::string pasteData = req.get_param_value("pasteBody");
 
-    
+    // to-do Change front end request type from JSON to some sort of form
     std::println("params {}", req.params);
     std::println("body {}", req.body);
     req.body
