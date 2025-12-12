@@ -46,9 +46,6 @@ void postRequestNewPaste(const httplib::Request &, httplib::Response &res)
 
     int codeLength {10};   
     std::string uniqueCode = std::format("{}", generateRandomString(codeLength));
-
-
-
     std::string shareLink = std::format("https://paste.charlestail.net/p/{}", uniqueCode);
     res.set_content(shareLink, "text/plain");
 

@@ -9,6 +9,7 @@
     --button-border: rgb(68, 68, 68);
     --button-hover: rgb(60, 60, 60);
     --button-inset: rgb(50, 50, 50);
+    --confirmation-border: rgb(51, 193, 117);
     
 }
 
@@ -63,11 +64,15 @@ body {
 }
 
 .shareLink:focus {
-    outline: 2px solid var(--button-border);
+    outline: 0px solid var(--button-border);
 }
 
 .shareLink[readonly] {
     cursor: default;
+}
+
+.shareConfirmation {
+    outline: 2px solid var(--confirmation-border) !important;
 }
 
 .pasteBox {
