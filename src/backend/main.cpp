@@ -40,19 +40,29 @@ std::string generateRandomString(size_t length)
 }
 
 
-void postRequestNewPaste(const httplib::Request &, httplib::Response &res)
+void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
 {
-    
-
     int codeLength {10};   
     std::string uniqueCode = std::format("{}", generateRandomString(codeLength));
     std::string shareLink = std::format("https://paste.charlestail.net/p/{}", uniqueCode);
     res.set_content(shareLink, "text/plain");
 
     std::println("[POST] Request New Paste Entry - {}", shareLink);
-}
 
-void getServeFrontEnd(const httplib::Request &, httplib::Response &res)
+    std::string pasteData = req.get_param_value("pasteBody");
+
+    
+    std::println("params {}", req.params);
+    std::println("body {}", req.body);
+    req.body
+    std::println("content length {}", req.content_length_);
+    std::println("form {}", req.form.has_field("pasteBody"));
+    std::println("headers {}", req.headers);
+
+
+}  
+
+void getServeFrontEnd(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET] Request FrontEnd");
     res.set_file_content("./www/index.html", "text/html");
