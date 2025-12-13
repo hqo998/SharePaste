@@ -66,7 +66,7 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
     std::optional<std::string> pasteBody = bodyData.at("pasteBody");
 
 
-    if (pasteBody.value().empty()) // Invalid if string body is empty
+    if (pasteBody.value_or("").empty()) // Invalid if string body is empty
     {
         std::println("[POST - API NEW] INVALID Empty paste text body");
         res.set_content("Request Invalid!", "text/plain");
