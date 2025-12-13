@@ -8,6 +8,7 @@
 
 #include <sqlite3.h>
 #include <httplib.h>
+#include <json.hpp>
 
 #include <dbmanager.h>
 
@@ -54,7 +55,6 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
     // to-do Change front end request type from JSON to some sort of form
     std::println("params {}", req.params);
     std::println("body {}", req.body);
-    req.body
     std::println("content length {}", req.content_length_);
     std::println("form {}", req.form.has_field("pasteBody"));
     std::println("headers {}", req.headers);

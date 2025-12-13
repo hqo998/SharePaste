@@ -23,7 +23,14 @@ set(HTTPLIB_FILE "${EXTERNAL_DIR}/httplib.h")
 message(STATUS "Downloading cpp-httplib v0.28.0...")
 file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
 
+set(HTTPLIB_URL "https://github.com/nlohmann/json/releases/download/v3.12.0/json.hpp")
+set(HTTPLIB_FILE "${EXTERNAL_DIR}/json.hpp")
+
+message(STATUS "Downloading json for cpp v3.12.0...")
+file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
+
 include_directories(${EXTERNAL_DIR})
+
 
 # sqlite3
 FetchContent_Declare(
