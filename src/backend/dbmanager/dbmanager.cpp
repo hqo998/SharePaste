@@ -34,7 +34,6 @@ void managerSQL::createPasteTable()
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             expires_at DATETIME,
             syntax TEXT,
-            title TEXT,
             burn_after_read BOOLEAN DEFAULT 0,
             view_count INTEGER DEFAULT 0
             );
@@ -64,6 +63,17 @@ void managerSQL::createTable(const std::string_view& tableName, const std::strin
     std::string sql = std::format("CREATE TABLE IF NOT EXISTS {0}({1});", tableName, columns);
     execute(sql);
 }
+
+/*
+void managerSQL::insertPaste(
+    const std::string& uniqueCode,
+    const std::string& pasteText,
+    // add method to insert items into db with prepared statements, std::optional??
+)
+{
+}
+*/
+
 
 void managerSQL::insertData(const std::string_view& tableName, const std::string_view& columns, const std::string_view& fields)
 {

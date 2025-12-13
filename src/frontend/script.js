@@ -2,7 +2,7 @@ document.getElementById("shareButton").addEventListener("click", function ()
 {
     const pasteRequest = document.getElementById("pasteBox").value;
 
-    fetch("/api",
+    fetch("/api/new",
         {
         method: "POST",
         headers: 
@@ -22,6 +22,7 @@ document.getElementById("newButton").addEventListener("click", function ()
 
     const emptyText = "";
     document.getElementById("pasteBox").value = emptyText;
+    document.getElementById("shareLink").value = emptyText;
 });
 
 

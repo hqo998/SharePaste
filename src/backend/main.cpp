@@ -14,7 +14,12 @@
 
 using json = nlohmann::json;
 
-managerSQL G_DATABASE;
+namespace sharepaste
+{
+    managerSQL G_DATABASE;
+    std::string websiteURL {"https://paste.charlestail.net"};
+}
+
 
 
 std::string generateRandomString(size_t length)
@@ -45,34 +50,41 @@ std::string generateRandomString(size_t length)
 
 void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
 {
-    
-    int codeLength {10};   
-    std::string uniqueCode = std::format("{}", generateRandomString(codeLength));
-    std::string shareLink = std::format("https://paste.charlestail.net/p/{}", uniqueCode);
-    res.set_content(shareLink, "text/plain");
 
-    std::println("[POST] Request New Paste Entry - {}", shareLink);
-
-    std::string pasteData = req.get_param_value("pasteBody");
-
-    // to-do Change front end request type from JSON to some sort of form
-    // std::println("params {}", req.params);
-    std::println("body {}", req.body);
-    // std::println("headers {}", req.headers);
-
-
-
-    json bodyData = json::parse(req.body);
-
-    std::string pasteBody = bodyData["pasteBody"];
-
-    std::println("Body as JSON {}", pasteBody);
-    if (req.has_header("Content-Length")) {
+    // Check for invalid post request
+    if (!req.has_header("Content-Length") || req.body.empty())
+    {
       auto val = req.get_header_value("Content-Length");
-      std::println("Length {}", val);
-    }
 
+      std::println("[POST - API NEW] INVALID Request has issues");
+      res.set_content("Request Invalid!", "text/plain");
+      return;
+    }
     
+    // Parse Post Request
+    json bodyData = json::parse(req.body);
+    std::optional<std::string> pasteBody = bodyData.at("pasteBody");
+
+
+    if (pasteBody.value().empty()) // Invalid if string body is empty
+    {
+        std::println("[POST - API NEW] INVALID Empty paste text body");
+        res.set_content("Request Invalid!", "text/plain");
+        return;
+    }
+    
+
+    std::println("Paste Text - {}", pasteBody.value()); // Print data from test body for debugging.
+
+
+    // Generate random code
+    int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
+    std::string uniqueCode = std::format("{}", generateRandomString(uniqueCodeLength));
+    std::string shareLink = std::format("{}/p/{}", sharepaste::websiteURL, uniqueCode);
+
+    // respond with the sharelink
+    res.set_content(shareLink, "text/plain");
+    std::println("[POST - API NEW] New Paste Entry - {}", shareLink);
 
 }  
 
@@ -150,12 +162,12 @@ int main(int argc, char* argv[])
     const std::string database_filename = "sharepaste.db";
  
 
-    G_DATABASE.connect(databasePath(database_subfolder, database_filename));
+    sharepaste::G_DATABASE.connect(databasePath(database_subfolder, database_filename));
 
-    G_DATABASE.createPasteTable();
+    sharepaste::G_DATABASE.createPasteTable();
 
     std::println("[Register] Adding get /api handler");
-    svr.Post("/api", postRequestNewPaste);
+    svr.Post("/api/new", postRequestNewPaste);
 
     std::println("[Register] Adding get / handler");
     svr.Get(R"(/)", getServeFrontEnd);
