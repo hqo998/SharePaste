@@ -24,7 +24,7 @@ message(STATUS "Downloading cpp-httplib v0.28.0...")
 file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
 
 set(HTTPLIB_URL "https://github.com/nlohmann/json/releases/download/v3.12.0/json.hpp")
-set(HTTPLIB_FILE "${EXTERNAL_DIR}/json.hpp")
+set(HTTPLIB_FILE "${EXTERNAL_DIR}/nlohmann/json.hpp")
 
 message(STATUS "Downloading json for cpp v3.12.0...")
 file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
@@ -57,7 +57,7 @@ add_executable(sharepaste
 # optimisation stuff
 set_target_properties(sharepaste PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
 set_target_properties(sharepaste PROPERTIES UNITY_BUILD OFF) #Use unity builds which lump files together to compile quicker but makes debugger harder
-target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <httplib.h>) #precompile headers to speed up compilation.
+target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <httplib.h> <nlohmann/json.hpp>) #precompile headers to speed up compilation.
 
 target_link_libraries(sharepaste PRIVATE sqlite3_lib)
 target_include_directories(sharepaste PUBLIC ${CMAKE_SOURCE_DIR}/src/backend/dbmanager)

@@ -8,9 +8,11 @@
 
 #include <sqlite3.h>
 #include <httplib.h>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 #include <dbmanager.h>
+
+using json = nlohmann::json;
 
 managerSQL G_DATABASE;
 
@@ -43,6 +45,7 @@ std::string generateRandomString(size_t length)
 
 void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
 {
+    
     int codeLength {10};   
     std::string uniqueCode = std::format("{}", generateRandomString(codeLength));
     std::string shareLink = std::format("https://paste.charlestail.net/p/{}", uniqueCode);
@@ -53,12 +56,23 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
     std::string pasteData = req.get_param_value("pasteBody");
 
     // to-do Change front end request type from JSON to some sort of form
-    std::println("params {}", req.params);
+    // std::println("params {}", req.params);
     std::println("body {}", req.body);
-    std::println("content length {}", req.content_length_);
-    std::println("form {}", req.form.has_field("pasteBody"));
-    std::println("headers {}", req.headers);
+    // std::println("headers {}", req.headers);
 
+
+
+    json bodyData = json::parse(req.body);
+
+    std::string pasteBody = bodyData["pasteBody"];
+
+    std::println("Body as JSON {}", pasteBody);
+    if (req.has_header("Content-Length")) {
+      auto val = req.get_header_value("Content-Length");
+      std::println("Length {}", val);
+    }
+
+    
 
 }  
 
