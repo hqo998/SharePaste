@@ -69,8 +69,8 @@ void managerSQL::createTable(const std::string_view& tableName, const std::strin
 bool managerSQL::insertPaste(
     const std::string& uniqueCode,
     const std::string& pasteText,
-    std::optional<std::string> expiresAt = {},
-    std::optional<std::string> code_type = {}
+    std::optional<std::string> expiresAt = std::nullopt,
+    std::optional<std::string> code_type = std::nullopt
     // add method to insert items into db with prepared statements, std::optional??
     )
 {
@@ -85,18 +85,19 @@ bool managerSQL::insertPaste(
     if (prep_insert != SQLITE_OK)
     {
         std::println("[Insert Paste] Prep Failed... {}", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
         return false;
     }
 
     // binding parameters
     sqlite3_bind_text(stmt, 1, uniqueCode.c_str(), -1, SQLITE_TRANSIENT);
     sqlite3_bind_text(stmt, 2, pasteText.c_str(), -1, SQLITE_TRANSIENT);
-    if (!expiresAt.value_or("").empty())
+    if (expiresAt.has_value())
         sqlite3_bind_text(stmt, 3, expiresAt.value().c_str(), -1, SQLITE_TRANSIENT);
     else
         sqlite3_bind_null(stmt, 3);
 
-    if (!code_type.value_or("").empty())
+    if (code_type.has_value())
         sqlite3_bind_text(stmt, 4, code_type.value().c_str(), -1, SQLITE_TRANSIENT);
     else
         sqlite3_bind_null(stmt, 4);
@@ -105,6 +106,7 @@ bool managerSQL::insertPaste(
     if (sqlite3_step(stmt) != SQLITE_DONE)
     {
         std::println("[Insert Paste] Step failed... {}", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
         return false;
     }
         
@@ -130,27 +132,4 @@ void managerSQL::deleteData(const std::string_view& tableName, int id)
 void managerSQL::closeDB()
 {
     if (db) sqlite3_close(db);
-}
-
-
-
-void example()
-{
-    managerSQL database;
-
-    std::string filename = "./example.db";
-    database.connect(filename);
-
-    std::string tableName = "STUDENTS";
-    std::string columns = "ID INTEGER PRIMARY KEY AUTOINCREMENT, FIRST_NAME TEXT NOT NULL, LAST_NAME TEXT NOT NULL, EMAIL TEXT UNIQUE NOT NULL";
-    database.createTable(tableName, columns);
-
-    std::string dataFormat = "FIRST_NAME, LAST_NAME, EMAIL";
-    std::string data = "('Joe', 'Smith', 'joe@smith.com'), ('Holly', 'Bracey', 'holly@bracey.com')";
-    database.insertData(tableName, dataFormat, data);
-
-    int id = 2;
-    database.deleteData(tableName, id);
-
-    database.closeDB();
 }

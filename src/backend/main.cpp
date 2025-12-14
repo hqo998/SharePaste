@@ -49,9 +49,8 @@ std::string generateRandomString(size_t length)
 }
 
 
-void postRequestNewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
+void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
-
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
     {
@@ -62,26 +61,32 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res) //
       return;
     }
     
+    // Check for crazy large payload
+    if (req.body.size() > 100000)
+    {
+        std::println("[POST - API NEW] INVALID Request is too large");
+        res.set_content("Request Invalid! Too Large.", "text/plain");
+        return;
+    }
+
     // Parse Post Request
     json bodyData = json::parse(req.body);
     std::optional<std::string> pasteBody = bodyData.at("pasteBody");
 
-
-    if (pasteBody.value_or("").empty()) // Invalid if string body is empty
+    // Invalid if string body is empty
+    if (pasteBody.value_or("").empty()) 
     {
         std::println("[POST - API NEW] INVALID Empty paste text body");
         res.set_content("Request Invalid!", "text/plain");
         return;
     }
-    
-
-    std::println("Paste Text - {}", pasteBody.value()); // Print data from test body for debugging.
+    // std::println("Paste Text - {}", pasteBody.value()); // Print data from test body for debugging.
 
 
     // Generate random code
     int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
     std::string uniqueCode = std::format("{}", generateRandomString(uniqueCodeLength));
-    std::string shareLink = std::format("{}/p/{}", sharepaste::websiteURL, uniqueCode);
+    std::string shareLink = std::format("{}/{}", sharepaste::websiteURL, uniqueCode);
 
 
     bool insert_success = sharepaste::G_DATABASE.insertPaste(uniqueCode, pasteBody.value(), std::nullopt, std::nullopt);
@@ -99,10 +104,14 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res) //
 
 }  
 
-void getServeFrontEnd(const httplib::Request &req, httplib::Response &res)
+void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
-    std::println("[GET] Request FrontEnd");
-    res.set_file_content("./www/index.html", "text/html");
+    std::println("[GET - Webpage] Recieved");
+    
+    std::string urlPath = req.path;
+    std::println("URL Path - {}", urlPath);
+
+    res.set_file_content("./www/index.html", "text/html"); // serves script.js and style.css that are statically mounted.
 }
 
 
@@ -131,7 +140,7 @@ void checkMissingFrontend()
 
 }
 
-void checkMissingFiles()
+void runTests()
 {
     checkMissingFrontend();
 }
@@ -160,7 +169,7 @@ int main(int argc, char* argv[])
         if (strcmp(argv[1], "--test") == 0)
         {
             std::println("[START] Running --tests");
-            checkMissingFiles();
+            runTests();
             exit(0);
         }
     }
@@ -178,16 +187,17 @@ int main(int argc, char* argv[])
     std::println("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
 
-    std::println("[Register] Adding get /api handler");
-    svr.Post("/api/new", postRequestNewPaste);
-
     std::println("[Register] Adding get / handler");
-    svr.Get(R"(/)", getServeFrontEnd);
+    svr.Get(R"(.*)", getPasteWebpage);
 
-    auto ret = svr.set_mount_point("/", "./www");
+    std::println("[Register] Adding get /api handler");
+    svr.Post("/api/new", postRequestAPINewPaste);
+
+
+    auto ret = svr.set_mount_point("/www", "./www");
     if (!ret)
     {
-        std::println("Cant mount /www to ./");
+        std::println("Cant mount /www to ./www");
     }
 
     std::string host  = "0.0.0.0";
