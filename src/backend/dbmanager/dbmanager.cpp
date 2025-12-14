@@ -65,6 +65,32 @@ void managerSQL::createTable(const std::string_view& tableName, const std::strin
     execute(sql);
 }
 
+bool managerSQL::getPasteData(const std::string& uniqueCode)
+{
+    std::string sqlSelectCommand = "SELECT *  FROM Pastes WHERE unique_code = ? LIMIT 1;";
+
+    sqlite3_stmt* stmt = nullptr;
+
+    int prep_insert = sqlite3_prepare_v2(db, sqlSelectCommand.c_str(), -1, &stmt, nullptr);
+    if (prep_insert != SQLITE_OK)
+    {
+        std::println("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, uniqueCode.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        
+    }
+
+
+    sqlite3_finalize(stmt);
+    return true;
+
+}
 
 bool managerSQL::insertPaste(
     const std::string& uniqueCode,

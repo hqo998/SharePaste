@@ -23,6 +23,7 @@ document.getElementById("newButton").addEventListener("click", function ()
     const emptyText = "";
     document.getElementById("pasteBox").value = emptyText;
     document.getElementById("shareLink").value = emptyText;
+    document.location.href = '/';
 });
 
 

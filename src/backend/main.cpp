@@ -22,7 +22,6 @@ namespace sharepaste
 }
 
 
-
 std::string generateRandomString(size_t length)
 {
     const std::string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
@@ -104,13 +103,24 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
 
 }  
 
+
+void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
+{
+    
+}
+
+
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET - Webpage] Recieved");
     
     std::string urlPath = req.path;
-    std::println("URL Path - {}", urlPath);
-
+    std::string uniqueCode = urlPath.erase(0, 1);
+    if (uniqueCode.empty())
+    {
+        std::println("URL Path - {} | uniqueCode - {}", urlPath, uniqueCode);
+    }
+    
     res.set_file_content("./www/index.html", "text/html"); // serves script.js and style.css that are statically mounted.
 }
 
@@ -140,10 +150,12 @@ void checkMissingFrontend()
 
 }
 
+
 void runTests()
 {
     checkMissingFrontend();
 }
+
 
 std::string databasePath(std::string_view subfolder, std::string_view filename)
 {
