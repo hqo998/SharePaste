@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <random>
 #include <algorithm>
+#include <optional>
 
 #include <sqlite3.h>
 #include <httplib.h>
@@ -48,7 +49,7 @@ std::string generateRandomString(size_t length)
 }
 
 
-void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
+void postRequestNewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
 
     // Check for invalid post request
@@ -82,7 +83,17 @@ void postRequestNewPaste(const httplib::Request &req, httplib::Response &res)
     std::string uniqueCode = std::format("{}", generateRandomString(uniqueCodeLength));
     std::string shareLink = std::format("{}/p/{}", sharepaste::websiteURL, uniqueCode);
 
-    // respond with the sharelink
+
+    bool insert_success = sharepaste::G_DATABASE.insertPaste(uniqueCode, pasteBody.value(), std::nullopt, std::nullopt);
+    if (!insert_success)
+    {
+        std::println("[POST - API NEW] Insert Failed");
+        res.set_content("Request Invalid!", "text/plain");
+        return;
+    }
+    
+
+    // if nothing returned early then respond with the sharelink
     res.set_content(shareLink, "text/plain");
     std::println("[POST - API NEW] New Paste Entry - {}", shareLink);
 
@@ -164,6 +175,7 @@ int main(int argc, char* argv[])
 
     sharepaste::G_DATABASE.connect(databasePath(database_subfolder, database_filename));
 
+    std::println("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
 
     std::println("[Register] Adding get /api handler");
