@@ -65,9 +65,12 @@ void managerSQL::createTable(const std::string_view& tableName, const std::strin
     execute(sql);
 }
 
-bool managerSQL::getPasteData(const std::string& uniqueCode)
+std::optional<pasteData> managerSQL::getPasteData(const std::string& uniqueCode)
 {
-    std::string sqlSelectCommand = "SELECT *  FROM Pastes WHERE unique_code = ? LIMIT 1;";
+    std::optional<pasteData> retrievedData {std::nullopt};
+
+    std::string sqlSelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports "  
+    "FROM Pastes WHERE unique_code = ? LIMIT 1;";
 
     sqlite3_stmt* stmt = nullptr;
 
@@ -76,20 +79,34 @@ bool managerSQL::getPasteData(const std::string& uniqueCode)
     {
         std::println("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
-        return false;
+        return retrievedData;
     }
 
     sqlite3_bind_text(stmt, 1, uniqueCode.c_str(), -1, SQLITE_TRANSIENT);
 
     if (sqlite3_step(stmt) == SQLITE_ROW)
     {
+        retrievedData.emplace();
+
+        retrievedData.value().uniqueCode = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        retrievedData.value().pasteText = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        retrievedData.value().createdDate = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+
+        const unsigned char* expiry = sqlite3_column_text(stmt, 3);
+        if (expiry)
+            retrievedData.value().expiryDate = reinterpret_cast<const char*>(expiry);
         
+        const unsigned char* codetype = sqlite3_column_text(stmt, 4);
+        if (expiry)
+            retrievedData.value().codeType = reinterpret_cast<const char*>(codetype);    
+
+        retrievedData.value().viewCount = sqlite3_column_int(stmt, 5);
+        retrievedData.value().reports = sqlite3_column_int(stmt, 6);
     }
 
 
     sqlite3_finalize(stmt);
-    return true;
-
+    return retrievedData;
 }
 
 bool managerSQL::insertPaste(

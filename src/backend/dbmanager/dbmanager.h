@@ -10,8 +10,8 @@ typedef struct pasteData
     std::string uniqueCode {};
     std::string pasteText {};
     std::string createdDate {};
-    std::string expiryDate {};
-    std::string codeType {};
+    std::optional<std::string> expiryDate {};
+    std::optional<std::string> codeType {};
     bool burnAfterRead {};
     int viewCount {};
     int reports {};
@@ -28,7 +28,7 @@ public:
     void execute(const std::string &command);
     void closeDB();
     void createTable(const std::string_view& tableName, const std::string_view& columns);
-    bool getPasteData(const std::string &uniqueCode);
+    std::optional<pasteData> getPasteData(const std::string &uniqueCode);
     bool insertPaste(const std::string &uniqueCode, const std::string &pasteText, std::optional<std::string> expiresAt, std::optional<std::string> syntax);
     void insertData(const std::string_view &tableName, const std::string_view &columns, const std::string_view &fields);
     void deleteData(const std::string_view& tableName, int id);

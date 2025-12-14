@@ -18,7 +18,6 @@ using json = nlohmann::json;
 namespace sharepaste
 {
     managerSQL G_DATABASE;
-    std::string websiteURL {"https://paste.charlestail.net"};
 }
 
 
@@ -85,8 +84,6 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // Generate random code
     int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
     std::string uniqueCode = std::format("{}", generateRandomString(uniqueCodeLength));
-    std::string shareLink = std::format("{}/{}", sharepaste::websiteURL, uniqueCode);
-
 
     bool insert_success = sharepaste::G_DATABASE.insertPaste(uniqueCode, pasteBody.value(), std::nullopt, std::nullopt);
     if (!insert_success)
@@ -95,18 +92,46 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
         res.set_content("Request Invalid!", "text/plain");
         return;
     }
-    
 
     // if nothing returned early then respond with the sharelink
-    res.set_content(shareLink, "text/plain");
-    std::println("[POST - API NEW] New Paste Entry - {}", shareLink);
+    res.set_content(uniqueCode, "text/plain");
+    std::println("[POST - API NEW] New Paste Entry - {}", uniqueCode);
 
 }  
 
 
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
+    std::println("[GET - Paste Data] Recieved");
+
+    std::string uniqueCode {"NO CODE PROVIDED"};
+
+    if (req.has_param("code"))
+    {
+        uniqueCode = req.get_param_value("code");
+    }
+    else
+    {
+        res.set_content("Nothing.", "text/plain");
+        return;
+    }
+
+    std::println("[GET - Paste Data] Fetching Data");
+    std::optional<pasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
     
+    if (!retrievedPaste.has_value())
+    {
+        res.set_content("Nothing.", "text/plain");
+        return;
+    }
+
+    json responsePayload;
+    responsePayload["pasteBody"] = retrievedPaste->pasteText;
+    responsePayload["viewCount"] = retrievedPaste->viewCount;
+    // implement view count for pastes
+
+    std::println("[GET - Paste Data] JSON - {}", responsePayload.dump());
+    res.set_content(responsePayload.dump(), "text/json");
 }
 
 
@@ -199,12 +224,16 @@ int main(int argc, char* argv[])
     std::println("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
 
-    std::println("[Register] Adding get / handler");
-    svr.Get(R"(.*)", getPasteWebpage);
+
 
     std::println("[Register] Adding get /api handler");
     svr.Post("/api/new", postRequestAPINewPaste);
 
+    std::println("[Register] Adding get /api/find handler");
+    svr.Get("/api/find", getRequestPasteData);
+
+    std::println("[Register] Adding get /* handler");
+    svr.Get(R"(.*)", getPasteWebpage);
 
     auto ret = svr.set_mount_point("/www", "./www");
     if (!ret)
