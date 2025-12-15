@@ -24,7 +24,8 @@ document.getElementById("newButton").addEventListener("click", function ()
     const emptyText = "";
     document.getElementById("pasteBox").value = emptyText;
     document.getElementById("shareLink").value = emptyText;
-    document.location.href = '/';
+    // document.location.href = '/';
+    document.getElementById("viewCount").value = "👁 0";
 });
 
 
@@ -67,6 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       document.getElementById('pasteBox').textContent = data.pasteBody;
       document.getElementById("shareLink").value = document.URL;
+
+      document.getElementById("viewCount").textContent = "👁 " + data.viewCount;
     })
     .catch(err => {
       document.getElementById('pasteBox').textContent = '';

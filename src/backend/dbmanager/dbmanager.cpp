@@ -7,11 +7,9 @@
 
 #include "dbmanager.h"
 
-// to do - make a insert data that can prepare statements
-
 void managerSQL::connect(const std::string& filename)
 {
-
+    // opens connection to database
     int opened = sqlite3_open(filename.c_str(), &db);
     if (opened)
     {
@@ -44,7 +42,9 @@ void managerSQL::createPasteTable()
 
 void managerSQL::execute(const std::string& command)
 {
+    // runs provided sql command without preparaton.
     char* errMsg = nullptr;
+    
     int rc = sqlite3_exec(db, command.c_str(), NULL, 0, &errMsg);
     if (rc != SQLITE_OK)
     {
@@ -55,18 +55,42 @@ void managerSQL::execute(const std::string& command)
     else
     {
         std::println("[DB Execute] Executed.");
-
     }
 }
 
-void managerSQL::createTable(const std::string_view& tableName, const std::string_view& columns)
+bool managerSQL::updateViewCount(const std::string& uniqueCode, int newViewCount)
 {
-    std::string sql = std::format("CREATE TABLE IF NOT EXISTS {0}({1});", tableName, columns);
-    execute(sql);
+    // changese the view count to the specified number. eg - after select update view count to new total
+    std::string updateViewCommand = "UPDATE Pastes SET view_count = ? WHERE unique_code = ?;";
+
+    sqlite3_stmt* stmt = nullptr;
+
+    int prep_insert = sqlite3_prepare_v2(db, updateViewCommand.c_str(), -1, &stmt, nullptr);
+    if (prep_insert != SQLITE_OK)
+    {
+        std::println("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return false;
+    }
+
+    sqlite3_bind_int(stmt, 1, newViewCount);
+    sqlite3_bind_text(stmt, 2, uniqueCode.c_str(), -1, SQLITE_TRANSIENT);
+
+    if (sqlite3_step(stmt) != SQLITE_DONE)
+    {
+        std::println("[Update View Count] Step failed... {}", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return false;
+    }
+
+    sqlite3_finalize(stmt);
+    return true;
 }
+
 
 std::optional<pasteData> managerSQL::getPasteData(const std::string& uniqueCode)
 {
+    // attempts to query the database for fields for a given code
     std::optional<pasteData> retrievedData {std::nullopt};
 
     std::string sqlSelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports "  
@@ -84,6 +108,7 @@ std::optional<pasteData> managerSQL::getPasteData(const std::string& uniqueCode)
 
     sqlite3_bind_text(stmt, 1, uniqueCode.c_str(), -1, SQLITE_TRANSIENT);
 
+    // execute and save out commands to return variable
     if (sqlite3_step(stmt) == SQLITE_ROW)
     {
         retrievedData.emplace();
@@ -104,7 +129,6 @@ std::optional<pasteData> managerSQL::getPasteData(const std::string& uniqueCode)
         retrievedData.value().reports = sqlite3_column_int(stmt, 6);
     }
 
-
     sqlite3_finalize(stmt);
     return retrievedData;
 }
@@ -114,7 +138,6 @@ bool managerSQL::insertPaste(
     const std::string& pasteText,
     std::optional<std::string> expiresAt = std::nullopt,
     std::optional<std::string> code_type = std::nullopt
-    // add method to insert items into db with prepared statements, std::optional??
     )
 {
     sqlite3_stmt* stmt = nullptr;
@@ -152,18 +175,10 @@ bool managerSQL::insertPaste(
         sqlite3_finalize(stmt);
         return false;
     }
-        
 
     sqlite3_finalize(stmt);
     return true;
 
-}
-
-
-void managerSQL::insertData(const std::string_view& tableName, const std::string_view& columns, const std::string_view& fields)
-{
-    std::string sql = std::format("INSERT OR IGNORE INTO {0}({1}) VALUES{2};", tableName, columns, fields);
-    execute(sql);
 }
 
 void managerSQL::deleteData(const std::string_view& tableName, int id)

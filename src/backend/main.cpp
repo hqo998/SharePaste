@@ -27,13 +27,6 @@ std::string generateRandomString(size_t length)
     std::random_device randomDevice;
     std::mt19937 generator(randomDevice());
 
-    /*
-    std::string randomString(characters);
-    std::shuffle(randomString.begin(), randomString.end(), generator);
-    
-    return randomString.substr(0, length);
-    */
-
     std::uniform_int_distribution<size_t> distribution(0, characters.size() - 1);
 
     std::string randomString;
@@ -55,7 +48,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
       auto val = req.get_header_value("Content-Length");
 
       std::println("[POST - API NEW] INVALID Request has issues");
-      res.set_content("Request Invalid!", "text/plain");
+      res.set_content("Request Invalid! Malformed", "text/plain");
       return;
     }
     
@@ -63,7 +56,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     if (req.body.size() > 100000)
     {
         std::println("[POST - API NEW] INVALID Request is too large");
-        res.set_content("Request Invalid! Too Large.", "text/plain");
+        res.set_content("Request Invalid! Too Large...", "text/plain");
         return;
     }
 
@@ -71,11 +64,11 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     json bodyData = json::parse(req.body);
     std::optional<std::string> pasteBody = bodyData.at("pasteBody");
 
-    // Invalid if string body is empty
+    // Invalid if string body is empty - should also add client side check
     if (pasteBody.value_or("").empty()) 
     {
         std::println("[POST - API NEW] INVALID Empty paste text body");
-        res.set_content("Request Invalid!", "text/plain");
+        res.set_content("Request Invalid! No Text...", "text/plain");
         return;
     }
     // std::println("Paste Text - {}", pasteBody.value()); // Print data from test body for debugging.
@@ -89,7 +82,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     if (!insert_success)
     {
         std::println("[POST - API NEW] Insert Failed");
-        res.set_content("Request Invalid!", "text/plain");
+        res.set_content("Request Invalid! Server Failed", "text/plain");
         return;
     }
 
@@ -106,6 +99,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 
     std::string uniqueCode {"NO CODE PROVIDED"};
 
+    // check if code param exists
     if (req.has_param("code"))
     {
         uniqueCode = req.get_param_value("code");
@@ -116,20 +110,26 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
         return;
     }
 
+    // Getting database info from code
     std::println("[GET - Paste Data] Fetching Data");
     std::optional<pasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
     
+    // Code has no data associated
     if (!retrievedPaste.has_value())
     {
         res.set_content("Nothing.", "text/plain");
         return;
     }
 
+
     json responsePayload;
     responsePayload["pasteBody"] = retrievedPaste->pasteText;
     responsePayload["viewCount"] = retrievedPaste->viewCount;
-    // implement view count for pastes
+    
+    // updating view count stat
+    sharepaste::G_DATABASE.updateViewCount(uniqueCode, retrievedPaste->viewCount + 1);
 
+    // send out that json babbbbyyyyy
     std::println("[GET - Paste Data] JSON - {}", responsePayload.dump());
     res.set_content(responsePayload.dump(), "text/json");
 }
@@ -139,6 +139,8 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET - Webpage] Recieved");
     
+    // this might be useless since the code here does nothing
+    // since it was a holdover from the first idea of implementing the idea.
     std::string urlPath = req.path;
     std::string uniqueCode = urlPath.erase(0, 1);
     if (uniqueCode.empty())
@@ -146,7 +148,8 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
         std::println("URL Path - {} | uniqueCode - {}", urlPath, uniqueCode);
     }
     
-    res.set_file_content("./www/index.html", "text/html"); // serves script.js and style.css that are statically mounted.
+    // serves script.js and style.css that are statically mounted at /www.
+    res.set_file_content("./www/index.html", "text/html"); 
 }
 
 
@@ -178,6 +181,7 @@ void checkMissingFrontend()
 
 void runTests()
 {
+    // to do - add more tests and stuff
     checkMissingFrontend();
 }
 
@@ -224,9 +228,7 @@ int main(int argc, char* argv[])
     std::println("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
 
-
-
-    std::println("[Register] Adding get /api handler");
+    std::println("[Register] Adding get /api/new handler");
     svr.Post("/api/new", postRequestAPINewPaste);
 
     std::println("[Register] Adding get /api/find handler");

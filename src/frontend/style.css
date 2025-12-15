@@ -14,19 +14,30 @@
 }
 
 body {
-  background-color: var(--bg);
-  color: white; 
-  margin: 0;
-  padding: 0;
-}
+    background-color: var(--bg);
+    color: white; 
+    margin: 0;
+    padding: 0;
+    }
 
 
 .headerBar {
-  background-color: var(--bg-header);
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
+    background-color: var(--bg-header);
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.viewCount {
+    margin-left: auto;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    white-space: nowrap;
+
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .headerBut {
@@ -86,6 +97,11 @@ body {
     font-size: 16px;
     padding: 10px;
 
+    resize: none;
+    box-sizing: border-box;
+
+    white-space: pre-wrap;
+    word-break: break-word;
 }
 
 .pasteBox:focus {
