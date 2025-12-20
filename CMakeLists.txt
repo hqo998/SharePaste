@@ -47,6 +47,10 @@ add_library(sqlite3_lib STATIC
 target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
 target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 ) #SQLITE_ENABLE_COLUMN_METADATA=1
 
+# need since g++ has fun errors that other compilers dont have. hopeful fix by telling g++ to ignore warning
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(sqlite3_lib PRIVATE -Wno-stringop-overread)
+endif()
 
 add_executable(sharepaste
     src/backend/main.cpp
