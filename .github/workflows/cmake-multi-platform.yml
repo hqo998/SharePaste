@@ -47,6 +47,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Install GCC 14 (Ubuntu only)
+      if: matrix.cpp_compiler == 'g++'
+      run: |
+        sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+        sudo apt update
+        sudo apt install -y gcc-14 g++-14
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 100
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 100
+        gcc --version
+        g++ --version
+
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
