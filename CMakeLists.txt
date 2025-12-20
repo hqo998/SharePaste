@@ -45,7 +45,7 @@ add_library(sqlite3_lib STATIC
 )
 
 target_include_directories(sqlite3_lib PUBLIC ${sqlite3_SOURCE_DIR})
-target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 SQLITE_ENABLE_COLUMN_METADATA=1)
+target_compile_definitions(sqlite3_lib PRIVATE SQLITE_THREADSAFE=1 ) #SQLITE_ENABLE_COLUMN_METADATA=1
 
 
 add_executable(sharepaste
