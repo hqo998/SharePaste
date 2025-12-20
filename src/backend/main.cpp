@@ -36,7 +36,7 @@ std::string generateRandomString(size_t length)
     }
 
     return randomString;
-    
+
 }
 
 
@@ -51,7 +51,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
       res.set_content("Request Invalid! Malformed", "text/plain");
       return;
     }
-    
+
     // Check for crazy large payload
     if (req.body.size() > 100000)
     {
@@ -65,7 +65,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     std::optional<std::string> pasteBody = bodyData.at("pasteBody");
 
     // Invalid if string body is empty - should also add client side check
-    if (pasteBody.value_or("").empty()) 
+    if (pasteBody.value_or("").empty())
     {
         std::println("[POST - API NEW] INVALID Empty paste text body");
         res.set_content("Request Invalid! No Text...", "text/plain");
@@ -90,7 +90,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     res.set_content(uniqueCode, "text/plain");
     std::println("[POST - API NEW] New Paste Entry - {}", uniqueCode);
 
-}  
+}
 
 
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
@@ -113,7 +113,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     // Getting database info from code
     std::println("[GET - Paste Data] Fetching Data");
     std::optional<pasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
-    
+
     // Code has no data associated
     if (!retrievedPaste.has_value())
     {
@@ -125,7 +125,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     json responsePayload;
     responsePayload["pasteBody"] = retrievedPaste->pasteText;
     responsePayload["viewCount"] = retrievedPaste->viewCount;
-    
+
     // updating view count stat
     sharepaste::G_DATABASE.updateViewCount(uniqueCode, retrievedPaste->viewCount + 1);
 
@@ -138,7 +138,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET - Webpage] Recieved");
-    
+
     // this might be useless since the code here does nothing
     // since it was a holdover from the first idea of implementing the idea.
     std::string urlPath = req.path;
@@ -147,9 +147,9 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
     {
         std::println("URL Path - {} | uniqueCode - {}", urlPath, uniqueCode);
     }
-    
+
     // serves script.js and style.css that are statically mounted at /www.
-    res.set_file_content("./www/index.html", "text/html"); 
+    res.set_file_content("./www/index.html", "text/html");
 }
 
 
@@ -163,7 +163,7 @@ void checkMissingFrontend()
         std::println("[WARNING] Web directory not found");
         std::exit(-1);
     }
-    
+
     else
     std::println("[PASS] Found web directory");
 
@@ -201,7 +201,7 @@ std::string databasePath(std::string_view subfolder, std::string_view filename)
     std::println("[Pass] Found database folder");
     return std::format("./{}/{}", subfolder, filename);
 }
-    
+
 
 int main(int argc, char* argv[])
 {
@@ -214,14 +214,14 @@ int main(int argc, char* argv[])
             exit(0);
         }
     }
-    
+
     std::println("[START] Beginning SharePaste");
 
-    httplib::Server svr; 
+    httplib::Server svr;
 
     const std::string database_subfolder = "data";
     const std::string database_filename = "sharepaste.db";
- 
+
 
     sharepaste::G_DATABASE.connect(databasePath(database_subfolder, database_filename));
 
