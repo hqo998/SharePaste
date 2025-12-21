@@ -244,7 +244,7 @@ int main(int argc, char* argv[])
     }
 
     std::string host  = "0.0.0.0";
-    int port = 80;
+    int port = 8080;
 
     std::println("[Info] Attempting to listen on {}:{}", host, port);
 
