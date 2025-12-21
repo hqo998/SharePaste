@@ -42,7 +42,7 @@ COPY --from=build /app/build/bin/sharepaste /sharepaste
 COPY --from=build /app/build/bin/www /www
 
 # Expose the port on which the API will listen
-EXPOSE 80
+EXPOSE 8080
 
 # MAake sure sharepaste exists
 RUN ["/sharepaste", "--test"]
