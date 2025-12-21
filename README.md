@@ -1,0 +1,56 @@
+# SharePaste
+Instantly share a code snippet or note with others as a randomly generated URL extension. The backend is made with a mixture of C++ and SQL using prepared statements.
+
+## Installation
+### Binaries
+> Not available yet. Please build from source.
+
+### Docker
+```
+docker run -d \
+	--name sharepaste \
+	-v /opt/sharepaste/data:/data \
+	-p 8080:8080 \
+	ghcr.io/hqo998/sharepaste:latest
+```
+
+### Docker Compose
+Quickstart.
+```
+services:
+  sharepaste:
+    container_name: sharepaste
+    image: ghcr.io/hqo998/sharepaste:latest
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    volumes:
+      - /opt/sharepaste/data:/data
+```
+With auto update.
+```
+services:
+  sharepaste:
+    container_name: sharepaste
+    image: ghcr.io/hqo998/sharepaste:latest
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    volumes:
+      - /opt/sharepaste/data:/data
+
+  watchtower:
+    container_name: watchtower
+    image: nickfedor/watchtower:latest
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=600
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_MONITOR_ONLY=false
+      - WATCHTOWER_REVIVE_STOPPED=true
+      - WATCHTOWER_INCLUDE_STOPPED=false
+      - WATCHTOWER_ENABLE_DIGEST=true
+    command: --cleanup
+```
