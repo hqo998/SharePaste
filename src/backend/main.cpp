@@ -121,15 +121,6 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET - Webpage] Recieved");
 
-    // this might be useless since the code here does nothing
-    // since it was a holdover from the first idea of implementing the idea.
-    std::string urlPath = req.path;
-    std::string uniqueCode = urlPath.erase(0, 1);
-    if (uniqueCode.empty())
-    {
-        std::println("URL Path - {} | uniqueCode - {}", urlPath, uniqueCode);
-    }
-
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");
 }

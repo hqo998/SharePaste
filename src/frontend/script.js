@@ -1,11 +1,13 @@
+let G_LASTTEXT = "";
+
 document.getElementById("shareButton").addEventListener("click", function ()
 {
     const pasteRequest = document.getElementById("pasteBox").value;
 
-    if (!pasteRequest) {
-      return; // early return for empty value
-      }
+    if (!pasteRequest) return; // early return for empty value
 
+    if (pasteRequest == G_LASTTEXT) return;
+    else G_LASTTEXT = pasteRequest;
 
     const origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
     fetch("/api/new",
@@ -44,29 +46,27 @@ document.getElementById("newButton").addEventListener("click", function ()
 });
 
 
-document.getElementById("shareLink").onclick = function()
+document.getElementById("shareLink").onclick = async function()
 {
-    if (this.value == "")
-    {
-        return
-    }
+    if (this.value == "") return;
 
     this.disabled = true;
+    const timeDelay = 500;
 
-    const timeDelay = 2000;
-
-    this.select();
-    document.execCommand('copy');
-
-    const old = this.value;
-    this.value = "Copied!";
-    this.classList.add("shareConfirmation");
-    setTimeout(() => {
-        this.value = old;
-        this.classList.remove("shareConfirmation");
-        // this.select();
+    try {
+        await navigator.clipboard.writeText(this.value);
+        const old = this.value;
+        this.value = "Copied!";
+        this.classList.add("shareConfirmation");
+        setTimeout(() => {
+            this.value = old;
+            this.classList.remove("shareConfirmation");
+            this.disabled = false;
+        }, timeDelay);
+    } catch (err) {
+        console.error("Clipboard copy failed", err);
         this.disabled = false;
-     }, timeDelay);
+    }
 }
 
 
