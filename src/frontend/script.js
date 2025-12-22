@@ -12,18 +12,18 @@ document.getElementById("shareButton").addEventListener("click", function ()
         body: JSON.stringify({ pasteBody: pasteRequest })
         })
 
-    .then((response) => {
-      const text = response.text();
+    .then(async (response) => {
+      const text = await response.text();
       const status = response.status;
       return { text, status };
-    })
+      })
 
-    .then(({code, status}) => {
-      if (status.ok) {
-        document.getElementById("shareLink").value = origin + '/' + code.text();
+    .then(({text, status}) => {
+      if (status == 200) {
+        document.getElementById("shareLink").value = origin + '/' + text;
       }
       else {
-        document.getElementById("shareLink").value = code.text();
+        document.getElementById("shareLink").value = text;
       }
     })
 });
@@ -67,7 +67,18 @@ document.getElementById("shareLink").onclick = function()
 document.addEventListener('DOMContentLoaded', () => {
   const uniqueCode = window.location.pathname.slice(1);
 
+  const storageData = sessionStorage.getItem(uniqueCode);
+
   if (!uniqueCode) return; // exit if no code
+
+  if (storageData) { // use locally found data instead.
+    console.log("Local Cache Found for Code");
+    const pasteData = JSON.parse(storageData);
+    document.getElementById("viewCount").textContent = "👁 " + pasteData.viewCount;
+    document.getElementById('pasteBox').textContent = pasteData.pasteBody;
+    document.getElementById("shareLink").value = document.URL;
+    return;
+  }
 
   fetch(`/api/find?code=${encodeURIComponent(uniqueCode)}`)
     .then(res => {
@@ -77,8 +88,13 @@ document.addEventListener('DOMContentLoaded', () => {
     .then(data => {
       document.getElementById('pasteBox').textContent = data.pasteBody;
       document.getElementById("shareLink").value = document.URL;
-
       document.getElementById("viewCount").textContent = "👁 " + data.viewCount;
+      const localDataObj = {
+        pasteBody: data.pasteBody,
+        viewCount: data.viewCount
+      }
+      sessionStorage.setItem(uniqueCode, JSON.stringify(localDataObj));
+
     })
     .catch(err => {
       document.getElementById('pasteBox').textContent = '';
