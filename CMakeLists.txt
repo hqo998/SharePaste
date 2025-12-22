@@ -73,11 +73,13 @@ endif()
 
 
 
+
+
 #copy frontend to build folder regardless of configuration
-# todo make it so that it always copies instead of only on clean
-add_custom_command(
-    TARGET sharepaste POST_BUILD
+add_custom_target(copy_frontend ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/src/frontend
         $<TARGET_FILE_DIR:sharepaste>/www
 )
+
+

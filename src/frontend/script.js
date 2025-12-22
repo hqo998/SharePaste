@@ -5,17 +5,26 @@ document.getElementById("shareButton").addEventListener("click", function ()
     fetch("/api/new",
         {
         method: "POST",
-        headers: 
+        headers:
         {
             "Content-type": "application/json; charset=UTF-8"
         },
         body: JSON.stringify({ pasteBody: pasteRequest })
         })
 
-    .then((response) => response.text())
-    
-    .then((code) => {document.getElementById("shareLink").value = origin + '/' + code;
-        
+    .then((response) => {
+      const text = response.text();
+      const status = response.status;
+      return { text, status };
+    })
+
+    .then(({code, status}) => {
+      if (status.ok) {
+        document.getElementById("shareLink").value = origin + '/' + code.text();
+      }
+      else {
+        document.getElementById("shareLink").value = code.text();
+      }
     })
 });
 
@@ -42,7 +51,7 @@ document.getElementById("shareLink").onclick = function()
 
     this.select();
     document.execCommand('copy');
-    
+
     const old = this.value;
     this.value = "Copied!";
     this.classList.add("shareConfirmation");

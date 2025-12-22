@@ -56,6 +56,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     if (req.body.size() > 100000)
     {
         std::println("[POST - API NEW] INVALID Request is too large");
+        res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Request Invalid! Too Large...", "text/plain");
         return;
     }
@@ -68,6 +69,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     if (pasteBody.value_or("").empty())
     {
         std::println("[POST - API NEW] INVALID Empty paste text body");
+        res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Request Invalid! No Text...", "text/plain");
         return;
     }
@@ -82,6 +84,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     if (!insert_success)
     {
         std::println("[POST - API NEW] Insert Failed");
+        res.status = httplib::StatusCode::InternalServerError_500;
         res.set_content("Request Invalid! Server Failed", "text/plain");
         return;
     }
@@ -106,6 +109,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     }
     else
     {
+        res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Nothing.", "text/plain");
         return;
     }
@@ -117,6 +121,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     // Code has no data associated
     if (!retrievedPaste.has_value())
     {
+        res.status = httplib::StatusCode::ImATeapot_418;
         res.set_content("Nothing.", "text/plain");
         return;
     }
@@ -221,7 +226,6 @@ int main(int argc, char* argv[])
 
     const std::string database_subfolder = "data";
     const std::string database_filename = "sharepaste.db";
-
 
     sharepaste::G_DATABASE.connect(databasePath(database_subfolder, database_filename));
 
