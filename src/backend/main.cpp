@@ -1,8 +1,6 @@
-
 #include <print>
 #include <string>
 #include <string_view>
-#include <filesystem>
 #include <optional>
 
 #include <sqlite3.h>
@@ -156,7 +154,7 @@ int main(int argc, char* argv[])
     const std::string database_subfolder = "data";
     const std::string database_filename = "sharepaste.db";
 
-    sharepaste::G_DATABASE.connect(sharepaste::databasePath(database_subfolder, database_filename));
+    sharepaste::G_DATABASE.connect(sharepaste::databasePathConstructor(database_subfolder, database_filename));
 
     std::println("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();

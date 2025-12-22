@@ -25,7 +25,7 @@ namespace sharepaste
         return randomString;
     }
 
-    std::string databasePath(std::string_view subfolder, std::string_view filename)
+    std::string databasePathConstructor(std::string_view subfolder, std::string_view filename)
     {
         std::println("[Test] Checking for database folder");
 
