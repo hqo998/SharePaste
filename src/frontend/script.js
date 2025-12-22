@@ -1,6 +1,12 @@
 document.getElementById("shareButton").addEventListener("click", function ()
 {
     const pasteRequest = document.getElementById("pasteBox").value;
+
+    if (!pasteRequest) {
+      return; // early return for empty value
+      }
+
+
     const origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
     fetch("/api/new",
         {
