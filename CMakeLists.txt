@@ -55,7 +55,15 @@ endif()
 add_executable(sharepaste
     src/backend/main.cpp
     src/backend/dbmanager/dbmanager.cpp
+    src/backend/utility/utility.cpp
+    src/backend/testtools/testtools.cpp
     # ... your source files
+)
+
+target_include_directories(sharepaste PUBLIC
+${CMAKE_SOURCE_DIR}/src/backend/dbmanager
+${CMAKE_SOURCE_DIR}/src/backend/utility
+${CMAKE_SOURCE_DIR}/src/backend/testtools
 )
 
 # optimisation stuff
@@ -64,7 +72,8 @@ set_target_properties(sharepaste PROPERTIES UNITY_BUILD OFF) #Use unity builds w
 target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <httplib.h> <nlohmann/json.hpp>) #precompile headers to speed up compilation.
 
 target_link_libraries(sharepaste PRIVATE sqlite3_lib)
-target_include_directories(sharepaste PUBLIC ${CMAKE_SOURCE_DIR}/src/backend/dbmanager)
+
+
 
 # Make build static on Linux
 if (UNIX AND NOT APPLE)

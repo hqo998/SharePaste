@@ -3,8 +3,6 @@
 #include <string>
 #include <string_view>
 #include <filesystem>
-#include <random>
-#include <algorithm>
 #include <optional>
 
 #include <sqlite3.h>
@@ -12,33 +10,16 @@
 #include <nlohmann/json.hpp>
 
 #include <dbmanager.h>
+#include <utility.h>
+#include <testtools.h>
 
 using json = nlohmann::json;
+
 
 namespace sharepaste
 {
     managerSQL G_DATABASE;
 }
-
-
-std::string generateRandomString(size_t length)
-{
-    const std::string characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    std::random_device randomDevice;
-    std::mt19937 generator(randomDevice());
-
-    std::uniform_int_distribution<size_t> distribution(0, characters.size() - 1);
-
-    std::string randomString;
-    for (size_t i = 0; i < length; i++)
-    {
-        randomString += characters[distribution(generator)];
-    }
-
-    return randomString;
-
-}
-
 
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
@@ -73,12 +54,10 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
         res.set_content("Request Invalid! No Text...", "text/plain");
         return;
     }
-    // std::println("Paste Text - {}", pasteBody.value()); // Print data from test body for debugging.
-
 
     // Generate random code
     int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
-    std::string uniqueCode = std::format("{}", generateRandomString(uniqueCodeLength));
+    std::string uniqueCode = std::format("{}", sharepaste::generateRandomString(uniqueCodeLength));
 
     bool insert_success = sharepaste::G_DATABASE.insertPaste(uniqueCode, pasteBody.value(), std::nullopt, std::nullopt);
     if (!insert_success)
@@ -158,56 +137,6 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 }
 
 
-void checkMissingFrontend()
-{
-    std::println("[TEST] Looking for web frontend");
-
-    const std::string webRoot = "./www";
-    if (!std::filesystem::exists(webRoot))
-    {
-        std::println("[WARNING] Web directory not found");
-        std::exit(-1);
-    }
-
-    else
-    std::println("[PASS] Found web directory");
-
-    const std::string index = "./www/index.html";
-    if (!std::filesystem::exists(index))
-    {
-        std::println("[WARNING] Index.html not found");
-        std::exit(-1);
-    }
-    else
-    std::println("[PASS] Index.html web directory");
-
-}
-
-
-void runTests()
-{
-    // to do - add more tests and stuff
-    checkMissingFrontend();
-}
-
-
-std::string databasePath(std::string_view subfolder, std::string_view filename)
-{
-    std::println("[Test] Checking for database folder");
-
-    std::string folderpathExists { std::format("./{}", subfolder)};
-    if (!std::filesystem::exists(folderpathExists))
-    {
-        std::filesystem::create_directory(folderpathExists);
-
-        std::println("[Pass] Creating database folder");
-    }
-
-    std::println("[Pass] Found database folder");
-    return std::format("./{}/{}", subfolder, filename);
-}
-
-
 int main(int argc, char* argv[])
 {
     if (argc > 1) // Check CLI arguements
@@ -215,7 +144,7 @@ int main(int argc, char* argv[])
         if (strcmp(argv[1], "--test") == 0)
         {
             std::println("[START] Running --tests");
-            runTests();
+            sharepaste::runTests();
             exit(0);
         }
     }
@@ -227,7 +156,7 @@ int main(int argc, char* argv[])
     const std::string database_subfolder = "data";
     const std::string database_filename = "sharepaste.db";
 
-    sharepaste::G_DATABASE.connect(databasePath(database_subfolder, database_filename));
+    sharepaste::G_DATABASE.connect(sharepaste::databasePath(database_subfolder, database_filename));
 
     std::println("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
