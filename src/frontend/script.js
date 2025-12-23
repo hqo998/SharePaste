@@ -6,7 +6,7 @@ document.getElementById("shareButton").addEventListener("click", function ()
 
     if (!pasteRequest) return; // early return for empty value
 
-    if (pasteRequest == G_LASTTEXT) return;
+    if (pasteRequest == G_LASTTEXT && !document.getElementById("shareLink")?.value.startsWith("http")) return;
     else G_LASTTEXT = pasteRequest;
 
     const origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
