@@ -22,15 +22,15 @@ namespace sharepaste
 
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
-    std::println("[POST - API NEW] Recieved.");
-    std::println("{}", sharepaste::getReqClientInfoString(req));
+    sharepaste::printLine("[POST - API NEW] Recieved.");
+    sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
     
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
     {
       auto val = req.get_header_value("Content-Length");
 
-      std::println("[POST - API NEW] INVALID Request has issues.");
+      sharepaste::printLine("[POST - API NEW] INVALID Request has issues.");
       res.set_content("Request Invalid! Malformed", "text/plain");
       return;
     }
@@ -38,7 +38,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // Check for crazy large payload
     if (req.body.size() > 100000)
     {
-        std::println("[POST - API NEW] INVALID Request is too large.");
+        sharepaste::printLine("[POST - API NEW] INVALID Request is too large.");
         res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Request Invalid! Too Large...", "text/plain");
         return;
@@ -51,7 +51,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // Invalid if string body is empty - should also add client side check
     if (pasteBody.value_or("").empty())
     {
-        std::println("[POST - API NEW] INVALID Empty paste text body.");
+        sharepaste::printLine("[POST - API NEW] INVALID Empty paste text body.");
         res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Request Invalid! No Text...", "text/plain");
         return;
@@ -63,7 +63,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     bool insert_success = sharepaste::G_DATABASE.insertPaste(uniqueCode, pasteBody.value(), std::nullopt, std::nullopt);
     if (!insert_success)
     {
-        std::println("[POST - API NEW] Insert Failed.");
+        sharepaste::printLine("[POST - API NEW] Insert Failed.");
         res.status = httplib::StatusCode::InternalServerError_500;
         res.set_content("Request Invalid! Server Failed", "text/plain");
         return;
@@ -71,15 +71,15 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
 
     // if nothing returned early then respond with the sharelink
     res.set_content(uniqueCode, "text/plain");
-    std::println("[POST - API NEW] New Paste Entry - {}", uniqueCode);
+    sharepaste::printLine("[POST - API NEW] New Paste Entry - {}", uniqueCode);
 
 }
 
 
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
-    std::println("[GET - Paste Data] Recieved.");
-    std::println("{}", sharepaste::getReqClientInfoString(req));
+    sharepaste::printLine("[GET - Paste Data] Recieved.");
+    sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
 
     std::string uniqueCode {"NO CODE PROVIDED"};
 
@@ -96,7 +96,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     }
 
     // Getting database info from code
-    std::println("[GET - Paste Data] Fetching Data.");
+    sharepaste::printLine("[GET - Paste Data] Fetching Data.");
     std::optional<PasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
 
     // Code has no data associated
@@ -116,15 +116,15 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     sharepaste::G_DATABASE.updateViewCount(uniqueCode, retrievedPaste->viewCount + 1);
 
     // send out that json babbbbyyyyy
-    std::println("[GET - Paste Data] JSON - {}", responsePayload.dump());
+    sharepaste::printLine("[GET - Paste Data] JSON - {}", responsePayload.dump());
     res.set_content(responsePayload.dump(), "text/json");
 }
 
 
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
-    std::println("[GET - Webpage] Sending Static Page");
-    std::println("{}", sharepaste::getReqClientInfoString(req));
+    sharepaste::printLine("[GET - Webpage] Sending Static Page");
+    sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");
@@ -137,13 +137,13 @@ int main(int argc, char* argv[])
     {
         if (strcmp(argv[1], "--test") == 0)
         {
-            std::println("[START] Running --tests");
+            sharepaste::printLine("[START] Running --tests");
             sharepaste::runTests();
             exit(0);
         }
     }
 
-    std::println("[START] Beginning SharePaste");
+    sharepaste::printLine("[START] Beginning SharePaste");
 
     httplib::Server svr;
 
@@ -152,28 +152,28 @@ int main(int argc, char* argv[])
 
     sharepaste::G_DATABASE.connect(sharepaste::databasePathConstructor(database_subfolder, database_filename));
 
-    std::println("[Create Table] Creating table");
+    sharepaste::printLine("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
 
-    std::println("[Register] Adding get /api/new handler");
+    sharepaste::printLine("[Register] Adding get /api/new handler");
     svr.Post("/api/new", postRequestAPINewPaste);
 
-    std::println("[Register] Adding get /api/find handler");
+    sharepaste::printLine("[Register] Adding get /api/find handler");
     svr.Get("/api/find", getRequestPasteData);
 
     auto ret = svr.set_mount_point("/www", "./www");
     if (!ret)
     {
-        std::println("Cant mount /www to ./www");
+        sharepaste::printLine("Cant mount /www to ./www");
     }
 
-    std::println("[Register] Adding get /* handler");
+    sharepaste::printLine("[Register] Adding get /* handler");
     svr.Get(R"(.*)", getPasteWebpage);
 
     std::string host  = "0.0.0.0";
     int port = 8080;
 
-    std::println("[Info] Attempting to listen on {}:{}", host, port);
+    sharepaste::printLine("[Info] Attempting to listen on {}:{}", host, port);
 
     if (!svr.listen(host, port)) {
         std::cerr << "[ERROR] Failed to bind to " << host << ":" << port

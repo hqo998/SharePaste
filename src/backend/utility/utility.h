@@ -19,4 +19,10 @@ namespace sharepaste
     std::string databasePathConstructor(std::string_view subfolder, std::string_view filename);
     std::string getReqClientInfoString(const httplib::Request &req);
     RequestInfo getReqClientInfoParse(const httplib::Request &req);
+
+    template<typename... Args>
+    inline constexpr void printLine( std::string_view format, const Args&... args )
+    {
+        std::cout << std::vformat( format, std::make_format_args( args... ) ) << std::endl;
+    }
 }

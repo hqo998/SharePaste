@@ -4,7 +4,7 @@ FROM debian:trixie-slim AS build
 # Install build-essential for compiling C++ code
 RUN apt-get update && apt-get install -y \
     build-essential \
-    clang \
+    gcc \
     cmake \
     ninja-build
 
