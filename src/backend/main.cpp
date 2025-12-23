@@ -17,16 +17,20 @@ using json = nlohmann::json;
 namespace sharepaste
 {
     managerSQL G_DATABASE;
+    inline constexpr int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
 }
 
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
+    std::println("[POST - API NEW] Recieved.");
+    std::println("{}", sharepaste::getReqClientInfoString(req));
+    
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
     {
       auto val = req.get_header_value("Content-Length");
 
-      std::println("[POST - API NEW] INVALID Request has issues");
+      std::println("[POST - API NEW] INVALID Request has issues.");
       res.set_content("Request Invalid! Malformed", "text/plain");
       return;
     }
@@ -34,7 +38,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // Check for crazy large payload
     if (req.body.size() > 100000)
     {
-        std::println("[POST - API NEW] INVALID Request is too large");
+        std::println("[POST - API NEW] INVALID Request is too large.");
         res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Request Invalid! Too Large...", "text/plain");
         return;
@@ -47,20 +51,19 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // Invalid if string body is empty - should also add client side check
     if (pasteBody.value_or("").empty())
     {
-        std::println("[POST - API NEW] INVALID Empty paste text body");
+        std::println("[POST - API NEW] INVALID Empty paste text body.");
         res.status = httplib::StatusCode::BadRequest_400;
         res.set_content("Request Invalid! No Text...", "text/plain");
         return;
     }
 
     // Generate random code
-    int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
-    std::string uniqueCode = std::format("{}", sharepaste::generateRandomString(uniqueCodeLength));
+    const std::string uniqueCode = std::format("{}", sharepaste::generateRandomString(sharepaste::uniqueCodeLength));
 
     bool insert_success = sharepaste::G_DATABASE.insertPaste(uniqueCode, pasteBody.value(), std::nullopt, std::nullopt);
     if (!insert_success)
     {
-        std::println("[POST - API NEW] Insert Failed");
+        std::println("[POST - API NEW] Insert Failed.");
         res.status = httplib::StatusCode::InternalServerError_500;
         res.set_content("Request Invalid! Server Failed", "text/plain");
         return;
@@ -75,7 +78,8 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
 
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
-    std::println("[GET - Paste Data] Recieved");
+    std::println("[GET - Paste Data] Recieved.");
+    std::println("{}", sharepaste::getReqClientInfoString(req));
 
     std::string uniqueCode {"NO CODE PROVIDED"};
 
@@ -92,7 +96,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     }
 
     // Getting database info from code
-    std::println("[GET - Paste Data] Fetching Data");
+    std::println("[GET - Paste Data] Fetching Data.");
     std::optional<PasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
 
     // Code has no data associated
@@ -119,7 +123,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
-    std::println("[GET - Webpage] Recieved");
+    std::println("[GET - Webpage] Sending Static Page");
     std::println("{}", sharepaste::getReqClientInfoString(req));
 
     // serves script.js and style.css that are statically mounted at /www.
@@ -157,14 +161,14 @@ int main(int argc, char* argv[])
     std::println("[Register] Adding get /api/find handler");
     svr.Get("/api/find", getRequestPasteData);
 
-    std::println("[Register] Adding get /* handler");
-    svr.Get(R"(.*)", getPasteWebpage);
-
     auto ret = svr.set_mount_point("/www", "./www");
     if (!ret)
     {
         std::println("Cant mount /www to ./www");
     }
+
+    std::println("[Register] Adding get /* handler");
+    svr.Get(R"(.*)", getPasteWebpage);
 
     std::string host  = "0.0.0.0";
     int port = 8080;
