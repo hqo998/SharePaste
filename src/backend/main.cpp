@@ -120,7 +120,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET - Webpage] Recieved");
-    std::println("{}", sharepaste::extractReqInfo(req));
+    std::println("{}", sharepaste::getReqClientInfoString(req));
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");

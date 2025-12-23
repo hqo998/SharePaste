@@ -17,5 +17,6 @@ namespace sharepaste
 
     std::string generateRandomString(size_t length);
     std::string databasePathConstructor(std::string_view subfolder, std::string_view filename);
-    std::string extractReqInfo(const httplib::Request &req);
+    std::string getReqClientInfoString(const httplib::Request &req);
+    RequestInfo getReqClientInfoParse(const httplib::Request &req);
 }

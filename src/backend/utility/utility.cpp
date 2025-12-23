@@ -43,7 +43,23 @@ namespace sharepaste
         return std::format("./{}/{}", subfolder, filename);
     }
 
-    std::string extractReqInfo(const httplib::Request &req)
+    std::string getReqClientInfoString(const httplib::Request &req)
+    {
+        RequestInfo info {getReqClientInfoParse(req)};
+
+        return std::format(
+            "Request Data | URL-Path: '{}' / User-Agent: '{}' / Browser: '{}' / Platform: '{}' / Mobile: '{}' / IP: '{}:{}'",
+            info.urlPath,
+            info.userAgent,
+            info.browser,
+            info.platform,
+            info.mobile,
+            info.ip,
+            info.port
+        );
+    }
+
+    RequestInfo getReqClientInfoParse(const httplib::Request &req)
     {
         auto get = [&req](std::string h) -> std::string
         {
@@ -60,16 +76,7 @@ namespace sharepaste
         info.port = req.remote_port;                // request ip port
         info.urlPath = req.path;
 
-        return std::format(
-            "Request Data | URL-Path: '{}' / User-Agent: '{}' / Browser: '{}' / Platform: '{}' / Mobile: '{}' / IP: '{}:{}'",
-            info.urlPath,
-            info.userAgent,
-            info.browser,
-            info.platform,
-            info.mobile,
-            info.ip,
-            info.port
-        );
+        return info;
     }
 }
 
