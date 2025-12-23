@@ -69,7 +69,15 @@ document.getElementById("shareLink").onclick = async function()
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+  const storageData = sessionStorage.getItem("isFooterClosed");
+  if (storageData == "true") {
+    document.getElementById("footerBar").classList.add("hidden");
+    sessionStorage.setItem("isFooterClosed", "true");
+  }
+});
 
+// auto load paste data on page load
 document.addEventListener('DOMContentLoaded', () => {
   const uniqueCode = window.location.pathname.slice(1);
 
@@ -78,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!uniqueCode) return; // exit if no code
 
   if (storageData) { // use locally found data instead.
-    console.log("Local Cache Found for Code");
+    console.log("Local cache found for unique code.");
     const pasteData = JSON.parse(storageData);
     document.getElementById("viewCount").textContent = "👁 " + pasteData.viewCount;
     document.getElementById('pasteBox').textContent = pasteData.pasteBody;
@@ -106,4 +114,10 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('pasteBox').textContent = '';
       console.error(err);
     });
+});
+
+document.getElementById("footerCloseButton").addEventListener("click", function ()
+{
+    document.getElementById("footerBar").classList.add("hidden");
+    sessionStorage.setItem("isFooterClosed", "true");
 });

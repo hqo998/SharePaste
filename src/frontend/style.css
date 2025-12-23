@@ -15,11 +15,18 @@
 
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     background-color: var(--bg);
     color: white;
     margin: 0;
     padding: 0;
+
+    display: flex;
+    flex-direction: column;
     }
 
 
@@ -29,6 +36,32 @@ body {
     display: flex;
     gap: 10px;
     align-items: center;
+}
+
+.footerBar {
+    background-color: var(--bg-header);
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+@media (max-width: 600px) {
+    .headerBar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .headerBut {
+        min-height: 30px;
+    }
+
+    .footerBar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 .viewCount {
@@ -42,16 +75,15 @@ body {
     font-weight: bold;
 }
 
-@media (max-width: 600px) {
-    .headerBar {
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
+.footerPromo {
+    margin-inline: auto;
+    font-size: 0.9rem;
+    opacity: 0.8;
+    white-space: nowrap;
 
-    .headerBut {
-        min-height: 30px;
-    }
+    font-family: Arial;
+    font-size: 15px;
+    font-weight: bold;
 }
 
 .headerBut {
@@ -67,6 +99,7 @@ body {
 	font-weight: bold;
 	padding: 6px 24px;
 	text-decoration: none;
+    transition: all 0.2s ease-in-out;
 }
 
 .headerBut:hover {
@@ -100,11 +133,16 @@ body {
     outline: 2px solid var(--confirmation-border) !important;
 }
 
+form {
+    flex: 1;
+    display: flex;
+}
+
 .pasteBox {
     color: var(--text);
     background-color: var(--bg);
     width: 100%;
-    height: 90vh;
+    flex: 1;
     border: none;
 
     font-family: monospace;
@@ -120,4 +158,26 @@ body {
 
 .pasteBox:focus {
     outline: none;
+}
+
+.githubLink {
+    color: #0366d6; /* GitHub blue */
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.2s ease-in-out;
+    position: relative;
+  }
+
+.funLink:visited {
+    color: #0366d6;
+  }
+
+.githubLink:hover {
+    text-decoration: underline;
+    transform: scale(1.1);
+    color: #d73a49;
+  }
+
+.hidden {
+    display: none
 }
