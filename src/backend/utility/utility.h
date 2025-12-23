@@ -4,7 +4,7 @@
 
 namespace sharepaste
 {
-    typedef struct RequestInfo
+    struct RequestInfo
     {
         std::string userAgent;
         std::string browser;
@@ -13,7 +13,7 @@ namespace sharepaste
         std::string urlPath;
         std::string ip;
         int port {};
-    } RequestInfo;
+    };
 
     std::string generateRandomString(size_t length);
     std::string databasePathConstructor(std::string_view subfolder, std::string_view filename);

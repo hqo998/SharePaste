@@ -5,7 +5,7 @@
 #include <sqlite3.h>
 
 
-typedef struct PasteData
+struct PasteData
 {
     std::string uniqueCode {};
     std::string pasteText {};
@@ -15,7 +15,7 @@ typedef struct PasteData
     bool burnAfterRead {};
     int viewCount {};
     int reports {};
-} PasteData;
+};
 
 
 class managerSQL
