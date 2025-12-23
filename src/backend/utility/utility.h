@@ -21,8 +21,8 @@ namespace sharepaste
     RequestInfo getReqClientInfoParse(const httplib::Request &req);
 
     template<typename... Args>
-    inline constexpr void printLine( std::string_view format, Args&&... args )
+    inline constexpr void printLine( std::string_view format, const Args&... args )
     {
-        std::cout << std::vformat( format, std::make_format_args( std::forward<Args>( args )... ) ) << std::endl;
+        std::cout << std::vformat( format, std::make_format_args( args... ) ) << std::endl;
     }
 }
