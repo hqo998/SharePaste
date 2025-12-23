@@ -55,3 +55,6 @@ docker-compose.override.yml
 data/
 db.sqlite
 
+# --- Art Working Directory ---
+art/
+

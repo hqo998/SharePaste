@@ -93,7 +93,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 
     // Getting database info from code
     std::println("[GET - Paste Data] Fetching Data");
-    std::optional<pasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
+    std::optional<PasteData> retrievedPaste = sharepaste::G_DATABASE.getPasteData(uniqueCode);
 
     // Code has no data associated
     if (!retrievedPaste.has_value())
@@ -120,6 +120,7 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     std::println("[GET - Webpage] Recieved");
+    std::println("{}", sharepaste::extractReqInfo(req));
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");

@@ -88,10 +88,10 @@ bool managerSQL::updateViewCount(const std::string& uniqueCode, int newViewCount
 }
 
 
-std::optional<pasteData> managerSQL::getPasteData(const std::string& uniqueCode)
+std::optional<PasteData> managerSQL::getPasteData(const std::string& uniqueCode)
 {
     // attempts to query the database for fields for a given code
-    std::optional<pasteData> retrievedData {std::nullopt};
+    std::optional<PasteData> retrievedData {std::nullopt};
 
     std::string sqlSelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports "  
     "FROM Pastes WHERE unique_code = ? LIMIT 1;";
