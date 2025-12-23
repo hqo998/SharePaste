@@ -1,7 +1,7 @@
 :root {
     --bg: rgb(31, 31, 34);
     --bg-header: rgb(13, 13, 13);
-    
+
     --text: rgb(214, 214, 214);
 
     --button: rgb(40, 40, 40);
@@ -10,12 +10,12 @@
     --button-hover: rgb(60, 60, 60);
     --button-inset: rgb(50, 50, 50);
     --confirmation-border: rgb(51, 193, 117);
-    
+
 }
 
 body {
     background-color: var(--bg);
-    color: white; 
+    color: white;
     margin: 0;
     padding: 0;
     }
@@ -38,6 +38,18 @@ body {
     font-family: Arial;
     font-size: 15px;
     font-weight: bold;
+}
+
+@media (max-width: 600px) {
+    .headerBar {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .headerBut {
+        min-height: 30px;
+    }
 }
 
 .headerBut {
@@ -92,7 +104,7 @@ body {
     width: 100%;
     height: 90vh;
     border: none;
-    
+
     font-family: monospace;
     font-size: 16px;
     padding: 10px;
