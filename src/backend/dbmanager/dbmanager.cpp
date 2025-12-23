@@ -4,8 +4,10 @@
 #include <format>
 #include <sqlite3.h>
 
+#include <utility.h>
 
 #include "dbmanager.h"
+
 
 void managerSQL::connect(const std::string& filename)
 {
@@ -17,7 +19,7 @@ void managerSQL::connect(const std::string& filename)
     }
     else
     {
-        std::println("[DB Connect] Opened Succesfully");
+        sharepaste::printLine("[DB Connect] Opened Succesfully");
     }
 }
 
@@ -54,7 +56,7 @@ void managerSQL::execute(const std::string& command)
     }
     else
     {
-        std::println("[DB Execute] Executed.");
+        sharepaste::printLine("[DB Execute] Executed.");
     }
 }
 
@@ -68,7 +70,7 @@ bool managerSQL::updateViewCount(const std::string& uniqueCode, int newViewCount
     int prep_insert = sqlite3_prepare_v2(db, updateViewCommand.c_str(), -1, &stmt, nullptr);
     if (prep_insert != SQLITE_OK)
     {
-        std::println("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
+        sharepaste::printLine("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
         return false;
     }
@@ -78,7 +80,7 @@ bool managerSQL::updateViewCount(const std::string& uniqueCode, int newViewCount
 
     if (sqlite3_step(stmt) != SQLITE_DONE)
     {
-        std::println("[Update View Count] Step failed... {}", sqlite3_errmsg(db));
+        sharepaste::printLine("[Update View Count] Step failed... {}", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
         return false;
     }
@@ -101,7 +103,7 @@ std::optional<PasteData> managerSQL::getPasteData(const std::string& uniqueCode)
     int prep_insert = sqlite3_prepare_v2(db, sqlSelectCommand.c_str(), -1, &stmt, nullptr);
     if (prep_insert != SQLITE_OK)
     {
-        std::println("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
+        sharepaste::printLine("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
         return retrievedData;
     }
@@ -150,7 +152,7 @@ bool managerSQL::insertPaste(
     int prep_insert = sqlite3_prepare_v2(db, sqlInsertCommand.c_str(), -1, &stmt, nullptr);
     if (prep_insert != SQLITE_OK)
     {
-        std::println("[Insert Paste] Prep Failed... {}", sqlite3_errmsg(db));
+        sharepaste::printLine("[Insert Paste] Prep Failed... {}", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
         return false;
     }
@@ -171,7 +173,7 @@ bool managerSQL::insertPaste(
 
     if (sqlite3_step(stmt) != SQLITE_DONE)
     {
-        std::println("[Insert Paste] Step failed... {}", sqlite3_errmsg(db));
+        sharepaste::printLine("[Insert Paste] Step failed... {}", sqlite3_errmsg(db));
         sqlite3_finalize(stmt);
         return false;
     }

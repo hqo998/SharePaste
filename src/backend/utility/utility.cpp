@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <print>
+#include <iostream>
 
 #include <utility.h>
 
@@ -29,17 +30,17 @@ namespace sharepaste
 
     std::string databasePathConstructor(std::string_view subfolder, std::string_view filename)
     {
-        std::println("[Test] Checking for database folder");
+        printLine("[Test] Checking for database folder");
 
         std::string folderpathExists { std::format("./{}", subfolder)};
         if (!std::filesystem::exists(folderpathExists))
         {
             std::filesystem::create_directory(folderpathExists);
 
-            std::println("[Pass] Creating database folder");
+            printLine("[Pass] Creating database folder");
         }
 
-        std::println("[Pass] Found database folder");
+        printLine("[Pass] Found database folder");
         return std::format("./{}/{}", subfolder, filename);
     }
 
