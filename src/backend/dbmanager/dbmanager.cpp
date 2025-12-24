@@ -63,11 +63,11 @@ void managerSQL::execute(const std::string& command)
 bool managerSQL::updateViewCount(const std::string& uniqueCode, int newViewCount)
 {
     // changese the view count to the specified number. eg - after select update view count to new total
-    std::string updateViewCommand = "UPDATE Pastes SET view_count = ? WHERE unique_code = ?;";
+    std::string sqlQueryUpdateViewCommand = "UPDATE Pastes SET view_count = ? WHERE unique_code = ?;";
 
     sqlite3_stmt* stmt = nullptr;
 
-    int prep_insert = sqlite3_prepare_v2(db, updateViewCommand.c_str(), -1, &stmt, nullptr);
+    int prep_insert = sqlite3_prepare_v2(db, sqlQueryUpdateViewCommand.c_str(), -1, &stmt, nullptr);
     if (prep_insert != SQLITE_OK)
     {
         sharepaste::printLine("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
@@ -95,12 +95,12 @@ std::optional<PasteData> managerSQL::getPasteData(const std::string& uniqueCode)
     // attempts to query the database for fields for a given code
     std::optional<PasteData> retrievedData {std::nullopt};
 
-    std::string sqlSelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports "  
+    std::string sqlQuerySelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports "  
     "FROM Pastes WHERE unique_code = ? LIMIT 1;";
 
     sqlite3_stmt* stmt = nullptr;
 
-    int prep_insert = sqlite3_prepare_v2(db, sqlSelectCommand.c_str(), -1, &stmt, nullptr);
+    int prep_insert = sqlite3_prepare_v2(db, sqlQuerySelectCommand.c_str(), -1, &stmt, nullptr);
     if (prep_insert != SQLITE_OK)
     {
         sharepaste::printLine("[Get Paste] Prep Failed... {}", sqlite3_errmsg(db));
@@ -144,12 +144,12 @@ bool managerSQL::insertPaste(
 {
     sqlite3_stmt* stmt = nullptr;
     
-    std::string sqlInsertCommand = "INSERT INTO Pastes ("
+    std::string sqlQueryInsertCommand = "INSERT INTO Pastes ("
         "unique_code, paste_text, expires_at, code_type"
         ") VALUES (?, ?, ?, ?);";
 
     // preparing statements
-    int prep_insert = sqlite3_prepare_v2(db, sqlInsertCommand.c_str(), -1, &stmt, nullptr);
+    int prep_insert = sqlite3_prepare_v2(db, sqlQueryInsertCommand.c_str(), -1, &stmt, nullptr);
     if (prep_insert != SQLITE_OK)
     {
         sharepaste::printLine("[Insert Paste] Prep Failed... {}", sqlite3_errmsg(db));
@@ -180,7 +180,41 @@ bool managerSQL::insertPaste(
 
     sqlite3_finalize(stmt);
     return true;
+}
 
+bool managerSQL::addColumnIfNotExists(const std::string& newColumn, const std::string& columnDef)
+{
+    sqlite3_stmt* stmt = nullptr;
+    std::string sqlQueryCheckTable = "PRAGMA table_info(Pastes);";
+
+    int prep_tableCheck = sqlite3_prepare_v2(db, sqlQueryCheckTable.c_str(), -1, &stmt, nullptr);
+    if (prep_tableCheck != SQLITE_OK)
+    {
+        sharepaste::printLine("[Add Column] Failed to prepare query... {}", sqlite3_errmsg(db));
+        sqlite3_finalize(stmt);
+        return false;
+    }
+
+    bool columnExists { false };
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        std::string colName = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        if (!colName.empty() && colName == newColumn)
+        {
+            columnExists = true;
+            break;
+        }
+    }
+    sqlite3_finalize(stmt);
+
+    if (columnExists)
+    {
+        std::string sqlQueryAddColumn = std::format("ALTER TABLE Pastes ADD COLUMN {} {}", newColumn, columnDef);
+        execute(sqlQueryAddColumn);
+    }
+    else return false;
+
+    return true;
 }
 
 void managerSQL::deleteData(const std::string_view& tableName, int id)
