@@ -15,16 +15,16 @@ function getUsableWidth(el) {
   return el.clientWidth - padding - scrollbar;
 }
 
-const style = getComputedStyle(textarea);
-const font = `${style.fontSize} ${style.fontFamily}`;
-const charWidth = getCharWidth(font);
-
 function getCharWidth(font) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   ctx.font = font;
   return ctx.measureText("M").width; // safest monospace glyph
 }
+
+const style = getComputedStyle(textarea);
+const font = `${style.fontSize} ${style.fontFamily}`;
+const charWidth = getCharWidth(font);
 
 const usableWidth = getUsableWidth(textarea);
 const charsPerLine = Math.floor(usableWidth / charWidth);
@@ -43,7 +43,8 @@ function updateLineNumbers() {
   let lineNumber = 1;
 
   lines.forEach(line => {
-    const wraps = Math.max(1, Math.ceil(line.length / charsPerLine));
+    // If wrap is disabled, each line counts as 1 visual line
+    const wraps = wrapEnabled ? Math.max(1, Math.ceil(line.length / charsPerLine)) : 1;
 
     displayLines.push(lineNumber++);
     for (let i = 1; i < wraps; i++) displayLines.push("");
@@ -51,7 +52,6 @@ function updateLineNumbers() {
 
   lineNumbers.textContent = displayLines.join("\n");
 }
-
 
 // Update on user typing
 textarea.addEventListener("input", updateLineNumbers);
@@ -63,6 +63,9 @@ window.addEventListener("resize", updateLineNumbers);
 textarea.addEventListener("scroll", () => {
   lineNumbers.scrollTop = textarea.scrollTop;
 });
+
+
+
 
 let G_LASTTEXT = "";
 
@@ -178,8 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('pasteBox').textContent = '';
       console.error(err);
     });
-
-    
 });
 
 
@@ -252,8 +253,23 @@ document.getElementById('pasteBox').addEventListener('keydown', function(e) { //
 });
 
 
+let wrapEnabled = true;
 
+function toggleWrap() {
+  wrapEnabled = !wrapEnabled;
 
+  if (wrapEnabled) {
+    textarea.style.whiteSpace = "pre-wrap";
+    textarea.style.wordBreak = "break-word";
+    textarea.wrap = "soft";
+  } else {
+    textarea.style.whiteSpace = "pre";
+    textarea.style.wordBreak = "normal";
+    textarea.wrap = "off";
+  }
 
-// Initialize
-updateLineNumbers();
+  updateLineNumbers(); // recalc after toggle
+}
+
+wrapButton.addEventListener("click", toggleWrap);
+
