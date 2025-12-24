@@ -1,43 +1,43 @@
-const mirror = document.getElementById("wrapMirror");
 const textarea = document.getElementById("pasteBox");
+const lineNumbers = document.getElementById("lineNumbers");
 
 function updateLineNumbers() {
   const lines = textarea.value.split("\n");
-  const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight);
+  let displayLines = [];
+  let number = 1;
+  let idx = 0;
 
-  mirror.style.width = textarea.clientWidth + "px";
+  lines.forEach(line => {
+    // Approximate chars per line based on textarea width
+    const approxCharsPerLine = Math.floor(textarea.clientWidth / 8); // adjust 8 based on font-size
+    const wrappedLines = Math.ceil(line.length / approxCharsPerLine) || 1;
+    
+    displayLines[idx] = number++;       // number for first visual line
+    for (let i = 1; i < wrappedLines; i++) displayLines[idx + i] = ''; // empty for wrapped lines
+    idx += wrappedLines;
+  });
 
-  const displayLines = [];
-  let lineNumber = 1;
-
-  for (const line of lines) {
-    mirror.textContent = line || " "; // empty line still needs height
-
-    const wrappedLines = Math.max(
-      1,
-      Math.round(mirror.scrollHeight / lineHeight)
-    );
-
-    displayLines.push(lineNumber++);
-    for (let i = 1; i < wrappedLines; i++) {
-      displayLines.push("");
-    }
-  }
-
-  lineNumbers.textContent = displayLines.join("\n");
+  lineNumbers.textContent = displayLines.join('\n');
 }
 
+// Update on user typing
 textarea.addEventListener("input", updateLineNumbers);
+
+// Update when window is resized
+window.addEventListener("resize", updateLineNumbers);
+
+// Update scroll syncing
 textarea.addEventListener("scroll", () => {
   lineNumbers.scrollTop = textarea.scrollTop;
 });
-window.addEventListener("resize", updateLineNumbers);
 
-const style = getComputedStyle(textarea);
-const paddingX =
-  parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+// Run whenever you programmatically change textarea content
+function setPaste(text) {
+  textarea.value = text;
+  updateLineNumbers();
+}
 
-mirror.style.width = (textarea.clientWidth - paddingX) + "px";
+
 
 let G_LASTTEXT = "";
 

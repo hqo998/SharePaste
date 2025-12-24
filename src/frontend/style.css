@@ -158,11 +158,6 @@ body {
   overflow: hidden;
   font-weight: bold;
   white-space: pre;
-
-  font-family: monospace;
-  font-size: 16px;
-  padding: 0 10px;
-  line-height: 1.4em;
 }
 
 .wrapMirror {
