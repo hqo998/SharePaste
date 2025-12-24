@@ -165,6 +165,7 @@ int main(int argc, char* argv[])
     if (!ret)
     {
         sharepaste::printLine("Cant mount /www to ./www");
+        exit(-1);
     }
 
     sharepaste::printLine("[Register] Adding get /* handler");

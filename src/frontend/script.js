@@ -1,24 +1,57 @@
+
+// line numbers
 const textarea = document.getElementById("pasteBox");
 const lineNumbers = document.getElementById("lineNumbers");
 
+function getUsableWidth(el) {
+  const style = getComputedStyle(el);
+
+  const padding =
+    parseFloat(style.paddingLeft) +
+    parseFloat(style.paddingRight);
+
+  const scrollbar = el.offsetWidth - el.clientWidth;
+
+  return el.clientWidth - padding - scrollbar;
+}
+
+const style = getComputedStyle(textarea);
+const font = `${style.fontSize} ${style.fontFamily}`;
+const charWidth = getCharWidth(font);
+
+function getCharWidth(font) {
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  ctx.font = font;
+  return ctx.measureText("M").width; // safest monospace glyph
+}
+
+const usableWidth = getUsableWidth(textarea);
+const charsPerLine = Math.floor(usableWidth / charWidth);
+
 function updateLineNumbers() {
   const lines = textarea.value.split("\n");
-  let displayLines = [];
-  let number = 1;
-  let idx = 0;
+  const displayLines = [];
+
+  const style = getComputedStyle(textarea);
+  const font = `${style.fontSize} ${style.fontFamily}`;
+  const charWidth = getCharWidth(font);
+  const usableWidth = getUsableWidth(textarea);
+
+  const charsPerLine = Math.max(1, Math.floor(usableWidth / charWidth));
+
+  let lineNumber = 1;
 
   lines.forEach(line => {
-    // Approximate chars per line based on textarea width
-    const approxCharsPerLine = Math.floor(textarea.clientWidth / 8); // adjust 8 based on font-size
-    const wrappedLines = Math.ceil(line.length / approxCharsPerLine) || 1;
-    
-    displayLines[idx] = number++;       // number for first visual line
-    for (let i = 1; i < wrappedLines; i++) displayLines[idx + i] = ''; // empty for wrapped lines
-    idx += wrappedLines;
+    const wraps = Math.max(1, Math.ceil(line.length / charsPerLine));
+
+    displayLines.push(lineNumber++);
+    for (let i = 1; i < wraps; i++) displayLines.push("");
   });
 
-  lineNumbers.textContent = displayLines.join('\n');
+  lineNumbers.textContent = displayLines.join("\n");
 }
+
 
 // Update on user typing
 textarea.addEventListener("input", updateLineNumbers);
@@ -30,14 +63,6 @@ window.addEventListener("resize", updateLineNumbers);
 textarea.addEventListener("scroll", () => {
   lineNumbers.scrollTop = textarea.scrollTop;
 });
-
-// Run whenever you programmatically change textarea content
-function setPaste(text) {
-  textarea.value = text;
-  updateLineNumbers();
-}
-
-
 
 let G_LASTTEXT = "";
 
