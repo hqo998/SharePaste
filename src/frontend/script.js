@@ -1,5 +1,47 @@
+const mirror = document.getElementById("wrapMirror");
+const textarea = document.getElementById("pasteBox");
+
+function updateLineNumbers() {
+  const lines = textarea.value.split("\n");
+  const lineHeight = parseFloat(getComputedStyle(textarea).lineHeight);
+
+  mirror.style.width = textarea.clientWidth + "px";
+
+  const displayLines = [];
+  let lineNumber = 1;
+
+  for (const line of lines) {
+    mirror.textContent = line || " "; // empty line still needs height
+
+    const wrappedLines = Math.max(
+      1,
+      Math.round(mirror.scrollHeight / lineHeight)
+    );
+
+    displayLines.push(lineNumber++);
+    for (let i = 1; i < wrappedLines; i++) {
+      displayLines.push("");
+    }
+  }
+
+  lineNumbers.textContent = displayLines.join("\n");
+}
+
+textarea.addEventListener("input", updateLineNumbers);
+textarea.addEventListener("scroll", () => {
+  lineNumbers.scrollTop = textarea.scrollTop;
+});
+window.addEventListener("resize", updateLineNumbers);
+
+const style = getComputedStyle(textarea);
+const paddingX =
+  parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+
+mirror.style.width = (textarea.clientWidth - paddingX) + "px";
+
 let G_LASTTEXT = "";
 
+// sharebutton
 document.getElementById("shareButton").addEventListener("click", function ()
 {
     const pasteRequest = document.getElementById("pasteBox").value;
@@ -36,6 +78,7 @@ document.getElementById("shareButton").addEventListener("click", function ()
     })
 });
 
+// new button
 document.getElementById("newButton").addEventListener("click", function ()
 {
     const emptyText = "";
@@ -45,7 +88,7 @@ document.getElementById("newButton").addEventListener("click", function ()
     document.getElementById("viewCount").value = "👁 0";
 });
 
-
+// share button
 document.getElementById("shareLink").onclick = async function()
 {
     if (this.value == "") return;
@@ -69,13 +112,7 @@ document.getElementById("shareLink").onclick = async function()
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  const storageData = sessionStorage.getItem("isFooterClosed");
-  if (storageData == "true") {
-    document.getElementById("footerBar").classList.add("hidden");
-    sessionStorage.setItem("isFooterClosed", "true");
-  }
-});
+
 
 // auto load paste data on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -91,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById("viewCount").textContent = "👁 " + pasteData.viewCount;
     document.getElementById('pasteBox').textContent = pasteData.pasteBody;
     document.getElementById("shareLink").value = document.URL;
+    updateLineNumbers();
     return;
   }
 
@@ -109,15 +147,88 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       sessionStorage.setItem(uniqueCode, JSON.stringify(localDataObj));
 
+      updateLineNumbers();
     })
     .catch(err => {
       document.getElementById('pasteBox').textContent = '';
       console.error(err);
     });
+
+    
 });
 
+
+// footer close
 document.getElementById("footerCloseButton").addEventListener("click", function ()
 {
     document.getElementById("footerBar").classList.add("hidden");
     sessionStorage.setItem("isFooterClosed", "true");
 });
+
+// stay closed on reload
+document.addEventListener('DOMContentLoaded', () => {
+  const storageData = sessionStorage.getItem("isFooterClosed");
+  if (storageData == "true") {
+    document.getElementById("footerBar").classList.add("hidden");
+    sessionStorage.setItem("isFooterClosed", "true");
+  }
+});
+
+// tab indents
+document.getElementById('pasteBox').addEventListener('keydown', function(e) { // mostly ai - rewrite
+  if (e.key === 'Tab' && !(e.ctrlKey)) {
+    e.preventDefault();
+
+    let start = this.selectionStart;
+    let end = this.selectionEnd;
+    const value = this.value;
+    const tab = '  '; // 2 spaces for tabs - sue me
+
+    // No selection, simple tab insertion at cursor
+    if (start === end && !e.shiftKey) {
+      this.value = value.slice(0, start) + tab + value.slice(end);
+      this.selectionStart = this.selectionEnd = start + tab.length;
+      return;
+    }
+
+    // Expand selection to full lines based of \n
+    let lineStart = value.lastIndexOf('\n', start - 1) + 1;
+    let lineEnd = value.indexOf('\n', end);
+    if (lineEnd === -1) lineEnd = value.length;
+
+    const selectedText = value.slice(lineStart, lineEnd);
+    const lines = selectedText.split('\n');
+
+    if (e.shiftKey) {
+      // SHIFT+TAB: remove indentation
+      for (let i = 0; i < lines.length; i++) {
+        if (lines[i].startsWith(tab)) {
+          lines[i] = lines[i].slice(tab.length);
+        } else if (lines[i].startsWith(' ')) {
+          // remove any leading spaces if less than tab
+          lines[i] = lines[i].replace(/^ +/, '');
+        }
+      }
+    } else {
+      // TAB: add indentation
+      for (let i = 0; i < lines.length; i++) {
+        lines[i] = tab + lines[i];
+      }
+    }
+
+    const newText = lines.join('\n');
+
+    this.value = value.slice(0, lineStart) + newText + value.slice(lineEnd);
+
+    // Adjust selection to cover modified lines
+    this.selectionStart = lineStart;
+    this.selectionEnd = lineStart + newText.length;
+  }
+});
+
+
+
+
+
+// Initialize
+updateLineNumbers();

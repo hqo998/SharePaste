@@ -5,6 +5,9 @@
     --bg-header: rgb(13, 13, 13);
 
     --text: rgb(214, 214, 214);
+    --text-numbers: rgb(185, 185, 185);
+
+    --bg-numberline: rgb(41, 41, 41);
 
     --button: rgb(40, 40, 40);
     --button-bg: rgb(50, 50, 50);
@@ -12,6 +15,8 @@
     --button-hover: rgb(60, 60, 60);
     --button-inset: rgb(50, 50, 50);
     --confirmation-border: rgb(51, 193, 117);
+
+    --sharepaste-yellow: rgb(255, 179, 25);
 
 }
 
@@ -133,9 +138,50 @@ body {
     outline: 2px solid var(--confirmation-border) !important;
 }
 
-form {
+.editorContainer {
     flex: 1;
     display: flex;
+}
+
+.font {
+    font-family: monospace;
+    font-size: 16px;
+    padding: 10px;
+    line-height: 1.4em;
+}
+
+.lineNumbers {
+  background: var(--bg-numberline);
+  text-align: right;
+  color: var(--text-numbers);
+  user-select: none;
+  overflow: hidden;
+  font-weight: bold;
+  white-space: pre;
+
+  font-family: monospace;
+  font-size: 16px;
+  padding: 0 10px;
+  line-height: 1.4em;
+}
+
+.wrapMirror {
+  position: absolute;
+  visibility: hidden;
+
+  white-space: pre-wrap;     /* CRITICAL */
+  word-wrap: break-word;
+
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+
+  padding: 0;              /* match textarea */
+  box-sizing: border-box;
+
+  font-family: monospace;
+  font-size: 16px;
+  line-height: 1.4em;
 }
 
 .pasteBox {
@@ -144,20 +190,19 @@ form {
     width: 100%;
     flex: 1;
     border: none;
-
-    font-family: monospace;
-    font-size: 16px;
-    padding: 10px;
-
     resize: none;
     box-sizing: border-box;
-
     white-space: pre-wrap;
     word-break: break-word;
 }
 
 .pasteBox:focus {
     outline: none;
+}
+
+.pasteBox::selection {
+    background-color: var(--sharepaste-yellow);
+    color: var(--bg-header);
 }
 
 .githubLink {

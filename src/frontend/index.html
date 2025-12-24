@@ -22,16 +22,17 @@
   </header>
 
   <!-- Text field stuff-->
-  <form action="/api/new" method="GET">
-    <textarea class="pasteBox"
+  <div class="editorContainer">
+    <div class="lineNumbers font" id="lineNumbers">1</div>
+    <textarea class="pasteBox font"
               id="pasteBox"
               name="pasteText"
               placeholder=""
               spellcheck="false"
               maxlength="30000"
               ></textarea>
-
-  </form>
+  </div>
+  <div id="wrapMirror" class="wrapMirror"></div>
 
   <footer id="footerBar" class="footerBar">
     <span id="footerPromo" class="footerPromo">
