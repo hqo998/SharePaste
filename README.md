@@ -54,3 +54,9 @@ services:
       - WATCHTOWER_ENABLE_DIGEST=true
     command: --cleanup
 ```
+
+## Dependancies
+- Automatically downloaded and when built with provided CMAKE
+- [cpp-httplib](https://github.com/yhirose/cpp-httplib)
+- [SQLite3](https://sqlite.org)
+- [Nlohmann JSON](https://github.com/nlohmann/json)
