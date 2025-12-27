@@ -1,5 +1,12 @@
+<div align="center">
+
 # SharePaste
-Instantly share a code snippet or note with others as a randomly generated URL extension. The backend is made with a mixture of C++ and SQL using prepared statements.
+<img src="./src/frontend/favicon/favicon.svg" width="450" />
+
+---
+Instantly share a code or note snipped with others as a randomly generated URL extension. The backend is made with C++ and using SQLite3 as a database.
+</div>
+
 
 ## Installation
 ### Binaries
