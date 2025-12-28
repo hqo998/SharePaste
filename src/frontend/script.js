@@ -114,6 +114,7 @@ document.getElementById("newButton").addEventListener("click", function ()
     document.getElementById("shareLink").value = emptyText;
     // document.location.href = '/';
     document.getElementById("viewCount").value = "👁 0";
+    updateLineNumbers()
 });
 
 // share button
