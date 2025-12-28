@@ -156,8 +156,8 @@ int main(int argc, char* argv[])
     {
         svr.set_trusted_proxies(sharepaste::env::trustedProxy);
         std::for_each(sharepaste::env::trustedProxy.cbegin(), sharepaste::env::trustedProxy.cend(),
-            [](std::string_view n){ std::cout << "[Trusted Proxy] Set: " << n << std::endl; });
-    }
+            [](std::string_view n){ sharepaste::printLine ( "[Trusted Proxy] Set: {}", n); });
+    } else sharepaste::printLine ( "[Trusted Proxy] None Set...");
 
     // setting up local db
     const std::string database_subfolder = "data";
