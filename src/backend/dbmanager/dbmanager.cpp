@@ -46,7 +46,7 @@ void managerSQL::execute(const std::string& command)
 {
     // runs provided sql command without preparaton.
     char* errMsg = nullptr;
-    
+
     int rc = sqlite3_exec(db, command.c_str(), NULL, 0, &errMsg);
     if (rc != SQLITE_OK)
     {
@@ -95,7 +95,7 @@ std::optional<PasteData> managerSQL::getPasteData(const std::string& uniqueCode)
     // attempts to query the database for fields for a given code
     std::optional<PasteData> retrievedData {std::nullopt};
 
-    std::string sqlQuerySelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports "  
+    std::string sqlQuerySelectCommand = "SELECT unique_code, paste_text, created_at, expires_at, code_type, view_count, reports, is_wrapped "
     "FROM Pastes WHERE unique_code = ? LIMIT 1;";
 
     sqlite3_stmt* stmt = nullptr;
@@ -122,13 +122,14 @@ std::optional<PasteData> managerSQL::getPasteData(const std::string& uniqueCode)
         const unsigned char* expiry = sqlite3_column_text(stmt, 3);
         if (expiry)
             retrievedData.value().expiryDate = reinterpret_cast<const char*>(expiry);
-        
+
         const unsigned char* codetype = sqlite3_column_text(stmt, 4);
         if (expiry)
-            retrievedData.value().codeType = reinterpret_cast<const char*>(codetype);    
+            retrievedData.value().codeType = reinterpret_cast<const char*>(codetype);
 
         retrievedData.value().viewCount = sqlite3_column_int(stmt, 5);
         retrievedData.value().reports = sqlite3_column_int(stmt, 6);
+        retrievedData.value().isWrapped = (sqlite3_column_int(stmt, 7) != 0); // bools in sql are apparently ints and != is to convert to bool.
     }
 
     sqlite3_finalize(stmt);
@@ -143,7 +144,7 @@ bool managerSQL::insertPaste(
     )
 {
     sqlite3_stmt* stmt = nullptr;
-    
+
     std::string sqlQueryInsertCommand = "INSERT INTO Pastes ("
         "unique_code, paste_text, expires_at, code_type"
         ") VALUES (?, ?, ?, ?);";
@@ -205,11 +206,13 @@ bool managerSQL::addColumnIfNotExists(const std::string& newColumn, const std::s
             break;
         }
     }
+
     sqlite3_finalize(stmt);
 
-    if (columnExists)
+    if (!columnExists)
     {
-        std::string sqlQueryAddColumn = std::format("ALTER TABLE Pastes ADD COLUMN {} {}", newColumn, columnDef);
+        std::string sqlQueryAddColumn = std::format("ALTER TABLE Pastes ADD {} {};", newColumn, columnDef);
+        sharepaste::printLine(sqlQueryAddColumn);
         execute(sqlQueryAddColumn);
     }
     else return false;

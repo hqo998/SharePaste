@@ -12,9 +12,10 @@ struct PasteData
     std::string createdDate {};
     std::optional<std::string> expiryDate {};
     std::optional<std::string> codeType {};
-    bool burnAfterRead {};
     int viewCount {};
     int reports {};
+    bool isWrapped {};
+    bool burnAfterRead {};
 };
 
 

@@ -166,6 +166,8 @@ int main(int argc, char* argv[])
 
     sharepaste::printLine("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
+    sharepaste::G_DATABASE.addColumnIfNotExists("is_wrapped", "BOOLEAN NOT NULL DEFAULT FALSE");
+
 
     // setting up handles
     sharepaste::printLine("[Register] Adding get /api/new handler");
