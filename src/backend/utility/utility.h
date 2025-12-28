@@ -25,4 +25,8 @@ namespace sharepaste
     {
         std::cout << std::vformat( format, std::make_format_args( args... ) ) << std::endl;
     }
+
+    std::string fetchEnv(const std::string_view varEnv);
+    const std::string_view trimLeadingChar(std::string_view word, const std::string_view charToRemove = " ");
+    std::vector<std::string> stringToSplitArray(const std::string_view arrayString, const std::string_view splitChar = ",");
 }

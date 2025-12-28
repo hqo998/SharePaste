@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(SharePastee)
+project(SharePaste)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
@@ -52,6 +52,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(sqlite3_lib PRIVATE -Wno-stringop-overread)
 endif()
 
+if (MSVC)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 add_executable(sharepaste
     src/backend/main.cpp
     src/backend/dbmanager/dbmanager.cpp
@@ -74,14 +78,10 @@ target_precompile_headers(sharepaste PRIVATE <vector> <string> <sqlite3.h> <http
 target_link_libraries(sharepaste PRIVATE sqlite3_lib)
 
 
-
 # Make build static on Linux
 if (UNIX AND NOT APPLE)
     target_link_options(sharepaste PRIVATE -static)
 endif()
-
-
-
 
 
 #copy frontend to build folder regardless of configuration

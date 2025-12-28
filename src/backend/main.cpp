@@ -18,13 +18,17 @@ namespace sharepaste
 {
     managerSQL G_DATABASE;
     inline constexpr int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
+    namespace env
+    {
+        std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies"));
+    }
 }
 
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
     sharepaste::printLine("[POST - API NEW] Recieved.");
     sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
-    
+
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
     {
@@ -147,20 +151,30 @@ int main(int argc, char* argv[])
 
     httplib::Server svr;
 
+    // setting local proxy
+    if (!sharepaste::env::trustedProxy.empty())
+    {
+        svr.set_trusted_proxies(sharepaste::env::trustedProxy);
+        std::for_each(sharepaste::env::trustedProxy.cbegin(), sharepaste::env::trustedProxy.cend(),
+            [](std::string_view n){ std::cout << "[Trusted Proxy] Set: " << n << std::endl; });
+    }
+
+    // setting up local db
     const std::string database_subfolder = "data";
     const std::string database_filename = "sharepaste.db";
-
     sharepaste::G_DATABASE.connect(sharepaste::databasePathConstructor(database_subfolder, database_filename));
 
     sharepaste::printLine("[Create Table] Creating table");
     sharepaste::G_DATABASE.createPasteTable();
 
+    // setting up handles
     sharepaste::printLine("[Register] Adding get /api/new handler");
     svr.Post("/api/new", postRequestAPINewPaste);
 
     sharepaste::printLine("[Register] Adding get /api/find handler");
     svr.Get("/api/find", getRequestPasteData);
 
+    // mounts www folder so js, html, css can be accessed via /www/something.sm without invidiual handlers
     auto ret = svr.set_mount_point("/www", "./www");
     if (!ret)
     {
@@ -171,9 +185,11 @@ int main(int argc, char* argv[])
     sharepaste::printLine("[Register] Adding get /* handler");
     svr.Get(R"(.*)", getPasteWebpage);
 
+    // default host/port
     std::string host  = "0.0.0.0";
     int port = 8080;
 
+    // binds to network
     sharepaste::printLine("[Info] Attempting to listen on {}:{}", host, port);
 
     if (!svr.listen(host, port)) {

@@ -5,9 +5,13 @@
 #include <print>
 #include <iostream>
 
+#include <cstdlib>
+
 #include <utility.h>
 
 #include <httplib.h>
+
+
 
 namespace sharepaste
 {
@@ -78,6 +82,57 @@ namespace sharepaste
         info.urlPath = req.path;
 
         return info;
+    }
+
+    std::string fetchEnv(const std::string_view varEnv)
+    {
+        const char* val = std::getenv(std::string(varEnv).c_str());
+        if (val == nullptr)
+        {
+            // add empty logic... check .env file?
+            return std::string();
+        }
+        return std::string { val };
+    }
+
+    const std::string_view trimLeadingChar(std::string_view word, const std::string_view charToRemove)
+    {
+        if (!word.empty())
+        {
+            word.remove_prefix(std::min(word.find_first_not_of(charToRemove), word.size()));
+            word.remove_suffix(std::min((word.size() - word.find_last_not_of(charToRemove) - 1), word.size()));
+        }
+        return word;
+    }
+
+    std::vector<std::string> stringToSplitArray(const std::string_view arrayString, const std::string_view splitChar)
+    {
+        std::vector<std::string> result;
+
+        std::size_t lastFound { 0 };
+        std::size_t found = arrayString.find_first_of(splitChar);
+
+        while (found != std::string::npos)
+        {
+            auto token = trimLeadingChar(arrayString.substr(lastFound, found-lastFound));
+
+            if (lastFound != found && !token.empty()) // accounts for commas doubled up and empty spaced commas
+            {
+                result.emplace_back(token);
+            }
+
+            lastFound = found + 1;
+            found = arrayString.find_first_of(splitChar, found+1);
+        }
+
+        auto token = trimLeadingChar(arrayString.substr(lastFound));
+
+        if (lastFound != found && !token.empty()) // accounts for commas doubled up
+        {
+            result.emplace_back(token);
+        }
+
+        return result;
     }
 }
 
