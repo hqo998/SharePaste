@@ -61,6 +61,7 @@ add_executable(sharepaste
     src/backend/dbmanager/dbmanager.cpp
     src/backend/utility/utility.cpp
     src/backend/testtools/testtools.cpp
+    src/backend/ratelimiter/ratelimiter.cpp
     # ... your source files
 )
 
@@ -68,6 +69,7 @@ target_include_directories(sharepaste PUBLIC
 ${CMAKE_SOURCE_DIR}/src/backend/dbmanager
 ${CMAKE_SOURCE_DIR}/src/backend/utility
 ${CMAKE_SOURCE_DIR}/src/backend/testtools
+${CMAKE_SOURCE_DIR}/src/backend/ratelimiter
 )
 
 # optimisation stuff
