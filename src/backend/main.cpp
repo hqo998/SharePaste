@@ -16,13 +16,24 @@ using json = nlohmann::json;
 
 namespace sharepaste
 {
-    managerSQL G_DATABASE;
-    IpRateLimiter G_RATELIMITER(10, .5);
-    inline constexpr int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
     namespace env
     {
-        std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies"));
+        std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies"));   // format like 192.168.0.1, 192.168.0.2, 192.168.0.92
+        int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                          // format with an int like 10 and set to 0 to disable rate limiting
+        double tokenRefillRate = fetchEnvDouble("SP_RateLimit_TokenCapacity", .5);                  // format with an double like .5
+
+        int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5);                 // format with an int like 5
+        int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);                    // format with an int like 10
+        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 0);                          // format with an int like 10 and set to 0 to disable long blocks
+
+        // need to add way to clean up old ips in a background thread
     }
+
+    managerSQL G_DATABASE;
+    IpRateLimiter G_RATELIMITER(env::tokenCapacity, env::tokenRefillRate, env::blockAttemptWindow, env::blockDuration, env::blockMaxAttempts );
+    inline constexpr int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
+
+
 }
 
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
@@ -142,7 +153,9 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
 
     auto clientInfo = sharepaste::getReqClientInfoParse(req);
 
-    sharepaste::printLine("{} with this many Tokens {}", sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip));
+    sharepaste::printLine("{} with this many Tokens {}, are they blocked? |{}| and for how long left {}.",
+        sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip),
+        sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip));
 
     if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), 1))
     {

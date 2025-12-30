@@ -29,6 +29,10 @@ namespace sharepaste
     }
 
     std::string fetchEnv(const std::string_view varEnv);
+
+    int fetchEnvInt(const std::string_view varEnv, int defaultValue);
+    double fetchEnvDouble(const std::string_view varEnv, double defaultValue);
+    
     const std::string_view trimLeadingChar(std::string_view word, const std::string_view charToRemove = " ");
     std::vector<std::string> stringToSplitArray(const std::string_view arrayString, const std::string_view splitChar = ",");
 }

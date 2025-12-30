@@ -2,8 +2,6 @@
 #include <string>
 #include <algorithm>
 #include <filesystem>
-#include <print>
-#include <iostream>
 
 #include <cstdlib>
 
@@ -94,6 +92,33 @@ namespace sharepaste
         }
         return std::string { val };
     }
+
+    int fetchEnvInt(const std::string_view varEnv, int defaultValue)
+    {
+        std::string val = fetchEnv(varEnv);
+        try
+        {
+            return std::stoi(val);
+        }
+        catch (...)
+        {
+            return defaultValue;
+        }
+    }
+
+    double fetchEnvDouble(const std::string_view varEnv, double defaultValue)
+    {
+        std::string val = fetchEnv(varEnv);
+        try
+        {
+            return std::stod(val);
+        }
+        catch (...)
+        {
+            return defaultValue;
+        }
+    }
+
 
     const std::string_view trimLeadingChar(std::string_view word, const std::string_view charToRemove)
     {

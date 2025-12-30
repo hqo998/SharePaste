@@ -25,7 +25,7 @@ bool tokenBucket.consume(ipAddress);
 */
 
 
-// add method that if request blocked 10 times in a row do a longer ban
+
 
 #include <chrono>
 #include <string>
@@ -34,20 +34,25 @@ bool tokenBucket.consume(ipAddress);
 
 #include <utility.h>
 #include <ratelimiter.h>
+#include <wincrypt.h>
 
 
-IpRateLimiter::IpRateLimiter(int capacity, double refillRate)
+IpRateLimiter::IpRateLimiter(int capacity, double refillRate, int blockAttemptWindow, int blockDuration, int blockMaxAttempts)
 {
     this->globalCapacity = capacity;
     this->globalRate = refillRate;
+    this->blockAttemptWindow = blockAttemptWindow;
+    this->blockDuration = blockDuration;
+    this->blockMaxAttempts = blockMaxAttempts;
 }
 
 bool IpRateLimiter::allowRequest(const std::string& ipAddress, int consumeAmount)
 {
+    if (globalCapacity == 0) return true; // If capacity is disabled disable checking.
 
     if (!ipBuckets.contains(ipAddress))
     {
-        ipBuckets.emplace(ipAddress, TokenBucket(globalCapacity, globalRate));
+        ipBuckets.emplace(ipAddress, TokenBucket(globalCapacity, globalRate, blockAttemptWindow, blockDuration, blockMaxAttempts));
     }
 
     return ipBuckets.at(ipAddress).consume(consumeAmount);
@@ -85,14 +90,35 @@ double IpRateLimiter::checkTokens(const std::string& ipAddress)
     return ipBuckets.at(ipAddress).returnTokensLeft();
 }
 
+bool IpRateLimiter::isBlocked(const std::string& ipAddress)
+{
+    if (!ipBuckets.contains(ipAddress))
+    {
+        return false;
+    }
+    return ipBuckets.at(ipAddress).isBlocked();
+}
+
+std::chrono::seconds IpRateLimiter::blockTimeLeft(const std::string& ipAddress)
+{
+    if (!ipBuckets.contains(ipAddress))
+    {
+        return std::chrono::seconds(0);
+    }
+    return ipBuckets.at(ipAddress).blockTimeLeft();
+}
+// needs a way to call isblocked and block time left in for each ip address
 
 
-TokenBucket::TokenBucket(int capacity, double refillRate)
+TokenBucket::TokenBucket(int capacity, double refillRate, int blockAttemptWindow, int blockDuration, int blockMaxAttempts)
 {
     this->capacity = capacity;
     this->refillRate = refillRate;
     this->tokens = capacity;
     this->lastRefillTime = std::chrono::steady_clock::now();
+    this->blockAttemptWindow = blockAttemptWindow;
+    this->blockDuration = blockDuration;
+    this->blockMaxAttempts = blockMaxAttempts;
 }
 
 void TokenBucket::refillTokens()
@@ -111,8 +137,9 @@ bool TokenBucket::consume(const int amountToConsume)
 {
     auto rightNow = std::chrono::steady_clock::now();
 
-    if (rightNow < blockUntil)
-        return false;
+    if (capacity == 0) return true; // to disable rate limiting set capacity to 0
+
+    if (rightNow < blockUntil) return false; // long blocks for repeated failures
 
     refillTokens();
 
@@ -132,7 +159,7 @@ bool TokenBucket::consume(const int amountToConsume)
             failureTimestamps.pop_front();
 
         // check if reached threshhold and if so block that ass
-        if (failureTimestamps.size() >= maxAttempts)
+        if (failureTimestamps.size() >= blockMaxAttempts)
         {
             blockUntil = rightNow + std::chrono::minutes(blockDuration);
             failureTimestamps.clear();
@@ -140,6 +167,27 @@ bool TokenBucket::consume(const int amountToConsume)
 
         return false;
     }
+}
+
+std::chrono::seconds TokenBucket::blockTimeLeft()
+{
+    if (isBlocked())
+    {
+        auto rightNow = std::chrono::steady_clock::now();
+
+        return std::chrono::duration_cast<std::chrono::seconds>(blockUntil - rightNow);
+    }
+    return std::chrono::seconds(0);
+}
+
+bool TokenBucket::isBlocked()
+{
+    auto rightNow = std::chrono::steady_clock::now();
+
+    if (rightNow < blockUntil)
+        return true;
+
+    return false;
 }
 
 bool TokenBucket::cleanUpIfOld(int minutes)
