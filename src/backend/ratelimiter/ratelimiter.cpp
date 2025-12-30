@@ -33,30 +33,25 @@ bool tokenBucket.consume(ipAddress);
 #include <utility.h>
 #include <ratelimiter.h>
 
-class IpRateLimiter
-{
-private:
-    std::unordered_map<std::string, TokenBucket> ipBuckets;
 
-    double globalCapacity;
-    double globalGlobalRate;
-
-    IpRateLimiter(int capacity = 10, double refillRate = 1)
+IpRateLimiter::IpRateLimiter(int capacity, double refillRate)
 {
     this->globalCapacity = capacity;
-    this->globalGlobalRate = refillRate;
+    this->globalRate = refillRate;
 }
 
-public:
-    bool allowRequest(std::string ipAddress)
-    {
-        
-        if (ipBuckets.contains(ipAddress))
-        {
+bool IpRateLimiter::allowRequest(std::string_view ipAddress, int consumeAmount)
+{
+    std::string ip(ipAddress);
 
-        }
+    if (!ipBuckets.contains(ip))
+    {
+        ipBuckets.emplace(ip, TokenBucket(globalCapacity, globalRate));
     }
-};
+
+    return ipBuckets.at(ip).consume(consumeAmount);
+}
+
 
 
 TokenBucket::TokenBucket(int capacity, double refillRate)
@@ -84,7 +79,7 @@ bool TokenBucket::consume(const int amountToConsume)
     refillTokens();
     if (tokens >= amountToConsume)
     {
-        tokens =- amountToConsume;
+        tokens -= amountToConsume;
         return true;
     }
     else

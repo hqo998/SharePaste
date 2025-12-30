@@ -146,10 +146,15 @@ void tempTestRateLimiter()
     lastRefillTime = std::chrono::steady_clock::now();
     sharepaste::printLine("Refill time {}", std::chrono::duration_cast<std::chrono::milliseconds>(lastRefillTime.time_since_epoch()));
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // lastRefillTime = std::chrono::steady_clock::now();
+    // sharepaste::printLine("Refill time {}", std::chrono::duration_cast<std::chrono::milliseconds>(lastRefillTime.time_since_epoch()));
 
-    lastRefillTime = std::chrono::steady_clock::now();
-    sharepaste::printLine("Refill time {}", std::chrono::duration_cast<std::chrono::milliseconds>(lastRefillTime.time_since_epoch()));
+
+    IpRateLimiter ipmanager(10, .5);
+
+
+
 
     exit(-1);
 }
@@ -167,7 +172,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    // tempTestRateLimiter();
+    tempTestRateLimiter();
 
     sharepaste::printLine("[START] Beginning SharePaste");
 
