@@ -212,7 +212,7 @@ bool managerSQL::addColumnIfNotExists(const std::string& newColumn, const std::s
     if (!columnExists)
     {
         std::string sqlQueryAddColumn = std::format("ALTER TABLE Pastes ADD {} {};", newColumn, columnDef);
-        sharepaste::printLine(sqlQueryAddColumn);
+        // sharepaste::printLine(sqlQueryAddColumn);
         execute(sqlQueryAddColumn);
     }
     else return false;
