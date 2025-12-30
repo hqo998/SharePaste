@@ -24,9 +24,6 @@
 bool tokenBucket.consume(ipAddress);
 */
 
-
-
-
 #include <chrono>
 #include <string>
 #include <algorithm>
@@ -34,7 +31,6 @@ bool tokenBucket.consume(ipAddress);
 
 #include <utility.h>
 #include <ratelimiter.h>
-#include <wincrypt.h>
 
 
 IpRateLimiter::IpRateLimiter(int capacity, double refillRate, int blockAttemptWindow, int blockDuration, int blockMaxAttempts)

@@ -153,10 +153,12 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
 
     auto clientInfo = sharepaste::getReqClientInfoParse(req);
 
-    sharepaste::printLine("{} with this many Tokens {}, are they blocked? |{}| and for how long left {}.",
+    // print client info
+    sharepaste::printLine("{} with this many Tokens {}, are they blocked? |{}| and for how long left {}s.",
         sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip),
-        sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip));
+        sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip).count());
 
+    // rate limit
     if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), 1))
     {
         res.status = 429;
