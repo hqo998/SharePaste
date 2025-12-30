@@ -1,5 +1,3 @@
-
-#include <chrono>
 #include <string>
 #include <string_view>
 #include <optional>
@@ -9,7 +7,6 @@
 #include <nlohmann/json.hpp>
 
 #include <dbmanager.h>
-#include <thread>
 #include <utility.h>
 #include <testtools.h>
 #include <ratelimiter.h>
@@ -20,6 +17,7 @@ using json = nlohmann::json;
 namespace sharepaste
 {
     managerSQL G_DATABASE;
+    IpRateLimiter G_RATELIMITER(10, .5);
     inline constexpr int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
     namespace env
     {
@@ -30,7 +28,6 @@ namespace sharepaste
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
     sharepaste::printLine("[POST - API NEW] Recieved.");
-    sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
 
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
@@ -86,7 +83,6 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
     sharepaste::printLine("[GET - Paste Data] Recieved.");
-    sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
 
     std::string uniqueCode {"NO CODE PROVIDED"};
 
@@ -131,12 +127,32 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     sharepaste::printLine("[GET - Webpage] Sending Static Page");
-    sharepaste::printLine("{}", sharepaste::getReqClientInfoString(req));
+
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");
 }
 
+httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Request &req, httplib::Response &res)
+{
+    if (req.path == "/.well-known/appspecific/com.chrome.devtools.json")
+    {
+        return httplib::Server::HandlerResponse::Handled;
+    }
+
+    auto clientInfo = sharepaste::getReqClientInfoParse(req);
+
+    sharepaste::printLine("{} with this many Tokens {}", sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip));
+
+    if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), 1))
+    {
+        res.status = 429;
+        res.set_header("Connection", "close");
+        return httplib::Server::HandlerResponse::Handled;
+    }
+
+    return httplib::Server::HandlerResponse::Unhandled;
+}
 
 
 int main(int argc, char* argv[])
@@ -172,6 +188,8 @@ int main(int argc, char* argv[])
     sharepaste::G_DATABASE.createPasteTable();
     sharepaste::G_DATABASE.addColumnIfNotExists("is_wrapped", "BOOLEAN NOT NULL DEFAULT FALSE");
 
+    // pre-request
+    svr.set_pre_request_handler(preRequestHandlerRateLimit);
 
     // setting up handles
     sharepaste::printLine("[Register] Adding get /api/new handler");

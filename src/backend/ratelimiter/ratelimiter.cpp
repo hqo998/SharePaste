@@ -25,10 +25,12 @@ bool tokenBucket.consume(ipAddress);
 */
 
 
+// add method that if request blocked 10 times in a row do a longer ban
 
 #include <chrono>
 #include <string>
 #include <algorithm>
+#include <deque>
 
 #include <utility.h>
 #include <ratelimiter.h>
@@ -42,29 +44,21 @@ IpRateLimiter::IpRateLimiter(int capacity, double refillRate)
 
 bool IpRateLimiter::allowRequest(const std::string& ipAddress, int consumeAmount)
 {
-    std::string ip(ipAddress);
 
-    if (!ipBuckets.contains(ip))
+    if (!ipBuckets.contains(ipAddress))
     {
-        ipBuckets.emplace(ip, TokenBucket(globalCapacity, globalRate));
+        ipBuckets.emplace(ipAddress, TokenBucket(globalCapacity, globalRate));
     }
 
-    return ipBuckets.at(ip).consume(consumeAmount);
+    return ipBuckets.at(ipAddress).consume(consumeAmount);
 }
 
 void IpRateLimiter::cleanAll()
 {
-    // for (auto& [ip, tokenBucket] : ipBuckets)
-    // {
-    //     if (tokenBucket.cleanUpIfOld(1))
-    //     {
-    //         ipBuckets.erase(ip);
-    //     }
-    // }
 
-    std::erase_if(ipBuckets, [](auto& bucketMap) {
+    std::erase_if(ipBuckets, [this](auto& bucketMap) {
     auto& [ip, bucket] = bucketMap;
-    bool shouldRemove = bucket.cleanUpIfOld(1);
+    bool shouldRemove = bucket.cleanUpIfOld(cleanUpInteval); // clean up minutes
 
     // Debug print
     std::cout << "Checking IP: " << ip << " | Should remove: " << std::boolalpha << shouldRemove << std::endl;
@@ -80,6 +74,15 @@ void IpRateLimiter::printAllIps()
     {
         sharepaste::printLine("Available IP in memory: {}", ip);
     }
+}
+
+double IpRateLimiter::checkTokens(const std::string& ipAddress)
+{
+    if (!ipBuckets.contains(ipAddress))
+    {
+        return globalCapacity;
+    }
+    return ipBuckets.at(ipAddress).returnTokensLeft();
 }
 
 
@@ -106,7 +109,13 @@ void TokenBucket::refillTokens()
 
 bool TokenBucket::consume(const int amountToConsume)
 {
+    auto rightNow = std::chrono::steady_clock::now();
+
+    if (rightNow < blockUntil)
+        return false;
+
     refillTokens();
+
     if (tokens >= amountToConsume)
     {
         tokens -= amountToConsume;
@@ -114,6 +123,21 @@ bool TokenBucket::consume(const int amountToConsume)
     }
     else
     {
+        // add fail attempt
+        failureTimestamps.push_back(rightNow);
+
+        // remove old fail attempts
+        auto blockWindowLimit = rightNow - std::chrono::minutes(blockAttemptWindow);
+        while (!failureTimestamps.empty() && failureTimestamps.front() < blockWindowLimit)
+            failureTimestamps.pop_front();
+
+        // check if reached threshhold and if so block that ass
+        if (failureTimestamps.size() >= maxAttempts)
+        {
+            blockUntil = rightNow + std::chrono::minutes(blockDuration);
+            failureTimestamps.clear();
+        }
+
         return false;
     }
 }
@@ -129,3 +153,8 @@ bool TokenBucket::cleanUpIfOld(int minutes)
     return false;
 }
 
+double TokenBucket::returnTokensLeft()
+{
+    refillTokens();
+    return tokens;
+}
