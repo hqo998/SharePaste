@@ -27,8 +27,8 @@ bool tokenBucket.consume(ipAddress);
 
 
 #include <chrono>
-#include <thread>
 #include <string>
+#include <algorithm>
 
 #include <utility.h>
 #include <ratelimiter.h>
@@ -40,7 +40,7 @@ IpRateLimiter::IpRateLimiter(int capacity, double refillRate)
     this->globalRate = refillRate;
 }
 
-bool IpRateLimiter::allowRequest(std::string_view ipAddress, int consumeAmount)
+bool IpRateLimiter::allowRequest(const std::string& ipAddress, int consumeAmount)
 {
     std::string ip(ipAddress);
 
@@ -50,6 +50,36 @@ bool IpRateLimiter::allowRequest(std::string_view ipAddress, int consumeAmount)
     }
 
     return ipBuckets.at(ip).consume(consumeAmount);
+}
+
+void IpRateLimiter::cleanAll()
+{
+    // for (auto& [ip, tokenBucket] : ipBuckets)
+    // {
+    //     if (tokenBucket.cleanUpIfOld(1))
+    //     {
+    //         ipBuckets.erase(ip);
+    //     }
+    // }
+
+    std::erase_if(ipBuckets, [](auto& bucketMap) {
+    auto& [ip, bucket] = bucketMap;
+    bool shouldRemove = bucket.cleanUpIfOld(1);
+
+    // Debug print
+    std::cout << "Checking IP: " << ip << " | Should remove: " << std::boolalpha << shouldRemove << std::endl;
+
+    return shouldRemove;
+});
+}
+
+void IpRateLimiter::printAllIps()
+{
+    sharepaste::printLine("Available IP, printing that it works to call.");
+    for (auto& [ip, tokenBucket] : ipBuckets)
+    {
+        sharepaste::printLine("Available IP in memory: {}", ip);
+    }
 }
 
 
@@ -68,7 +98,7 @@ void TokenBucket::refillTokens()
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(rightNow - lastRefillTime);
     if (elapsedTime.count() > 0)
     {
-        double newTokens = static_cast<double>((elapsedTime.count() / 1000) * refillRate);
+        double newTokens = static_cast<double>((static_cast<double>(elapsedTime.count()) / 1000) * refillRate);
         this->tokens = std::min(capacity, this->tokens + newTokens); // never goes higher then capacity
         lastRefillTime = std::chrono::steady_clock::now();
     }
@@ -86,5 +116,16 @@ bool TokenBucket::consume(const int amountToConsume)
     {
         return false;
     }
+}
+
+bool TokenBucket::cleanUpIfOld(int minutes)
+{
+    auto rightNow = std::chrono::steady_clock::now();
+    auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(rightNow - lastRefillTime);
+    if (std::chrono::duration_cast<std::chrono::seconds>(elapsedTime).count() >= minutes * 60)
+    {
+        return true;
+    }
+    return false;
 }
 

@@ -1,4 +1,5 @@
-#include <print>
+
+#include <chrono>
 #include <string>
 #include <string_view>
 #include <optional>
@@ -8,6 +9,7 @@
 #include <nlohmann/json.hpp>
 
 #include <dbmanager.h>
+#include <thread>
 #include <utility.h>
 #include <testtools.h>
 #include <ratelimiter.h>
@@ -135,29 +137,6 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
     res.set_file_content("./www/index.html", "text/html");
 }
 
-#include <thread>
-#include <chrono>
-
-void tempTestRateLimiter()
-{
-    std::chrono::steady_clock::time_point lastRefillTime;
-    sharepaste::printLine("Refill time {}", lastRefillTime.time_since_epoch());
-
-    lastRefillTime = std::chrono::steady_clock::now();
-    sharepaste::printLine("Refill time {}", std::chrono::duration_cast<std::chrono::milliseconds>(lastRefillTime.time_since_epoch()));
-
-    // std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    // lastRefillTime = std::chrono::steady_clock::now();
-    // sharepaste::printLine("Refill time {}", std::chrono::duration_cast<std::chrono::milliseconds>(lastRefillTime.time_since_epoch()));
-
-
-    IpRateLimiter ipmanager(10, .5);
-
-
-
-
-    exit(-1);
-}
 
 
 int main(int argc, char* argv[])
@@ -171,8 +150,6 @@ int main(int argc, char* argv[])
             exit(0);
         }
     }
-
-    tempTestRateLimiter();
 
     sharepaste::printLine("[START] Beginning SharePaste");
 

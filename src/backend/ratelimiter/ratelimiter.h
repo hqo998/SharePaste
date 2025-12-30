@@ -13,6 +13,7 @@ private:
 public:
     TokenBucket(int capacity = 10, double refillRate = 1);
     bool consume(const int amountToConsume);
+    bool cleanUpIfOld(int minutes = 60);
 };
 
 class IpRateLimiter
@@ -24,5 +25,9 @@ private:
 
 public:
     IpRateLimiter(int capacity = 10, double refillRate = 1);
-    bool allowRequest(std::string_view ipAddress, int consumeAmount);
+    bool allowRequest(const std::string& ipAddress, int consumeAmount);
+
+    void cleanAll();
+    void printAllIps();
+
 };

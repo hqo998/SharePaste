@@ -58,3 +58,4 @@ db.sqlite
 # --- Art Working Directory ---
 art/
 
+compile_commands.json

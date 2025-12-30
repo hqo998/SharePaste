@@ -3,6 +3,7 @@
 #include <utility.h>
 
 #include <testtools.h>
+#include <ratelimiter.h>
 
 namespace sharepaste
 {
@@ -36,5 +37,18 @@ namespace sharepaste
         else
         printLine("[PASS] Index.html web directory");
 
+    }
+
+    void rateTest()
+    {
+        IpRateLimiter ipManager;
+        ipManager.allowRequest(std::string("192.168.0.1111"), 1);
+        ipManager.allowRequest(std::string("192.168.0.420"), 1);
+        std::this_thread::sleep_for(std::chrono::seconds(90));
+        ipManager.allowRequest(std::string("192.168.0.1111"), 1);
+        ipManager.cleanAll();
+        ipManager.allowRequest(std::string("192.168.0.1111"), 1);
+        ipManager.printAllIps();
+        exit(-1);
     }
 }
