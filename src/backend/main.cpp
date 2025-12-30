@@ -151,7 +151,7 @@ void tempTestRateLimiter()
     lastRefillTime = std::chrono::steady_clock::now();
     sharepaste::printLine("Refill time {}", std::chrono::duration_cast<std::chrono::milliseconds>(lastRefillTime.time_since_epoch()));
 
-    exit(0);
+    exit(-1);
 }
 
 
@@ -167,7 +167,7 @@ int main(int argc, char* argv[])
         }
     }
 
-    tempTestRateLimiter();
+    // tempTestRateLimiter();
 
     sharepaste::printLine("[START] Beginning SharePaste");
 

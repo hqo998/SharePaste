@@ -48,9 +48,13 @@ private:
 }
 
 public:
-    bool allowRequest(std::string_view ipAddress)
+    bool allowRequest(std::string ipAddress)
     {
         
+        if (ipBuckets.contains(ipAddress))
+        {
+
+        }
     }
 };
 
