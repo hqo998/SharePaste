@@ -96,4 +96,5 @@ add_custom_target(copy_frontend ALL
         $<TARGET_FILE_DIR:sharepaste>/www
 )
 
+add_dependencies(copy_frontend sharepaste)
 
