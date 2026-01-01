@@ -1,23 +1,21 @@
 // rate limiter based off 'Token Bucket algorithm' as seen here https://smudge.ai/blog/ratelimit-algorithms
 // https://medium.com/@sahilbitsp/rate-limiting-algorithms-c-d185f942a7db
 
-//https://dev.to/0xtanzim/token-bucket-algorithm-explained-4ceo
-// C = bucket capacity
-// R = refill rate (tokens per second)
-// T = elapsed time since last refill
-// then the number of tokens at any moment is:
-// tokens = min(C, tokens + R * T)
-// when a request comes in:
-// if tokens > 0 → allow and tokens -= 1
-// else → reject
+// https://dev.to/0xtanzim/token-bucket-algorithm-explained-4ceo
+//  C = bucket capacity
+//  R = refill rate (tokens per second)
+//  T = elapsed time since last refill
+//  then the number of tokens at any moment is:
+//  tokens = min(C, tokens + R * T)
+//  when a request comes in:
+//  if tokens > 0 → allow and tokens -= 1
+//  else → reject
 
 // https://github.com/rigtorp/TokenBucket/blob/master/TokenBucket.h
-
 
 // design considerations
 // Needs individual token buckets for every ip address
 // Only calculate how many tokens a bucket should be refilled when a request that uses said bucket comes in, instead of a background process constantly updating
-
 
 // how i want to access the bucket
 /*
@@ -32,7 +30,6 @@ bool tokenBucket.consume(ipAddress);
 #include <utility.h>
 #include <ratelimiter.h>
 
-
 IpRateLimiter::IpRateLimiter(int capacity, double refillRate, int blockAttemptWindow, int blockDuration, int blockMaxAttempts)
 {
     this->globalCapacity = capacity;
@@ -42,9 +39,10 @@ IpRateLimiter::IpRateLimiter(int capacity, double refillRate, int blockAttemptWi
     this->blockMaxAttempts = blockMaxAttempts;
 }
 
-bool IpRateLimiter::allowRequest(const std::string& ipAddress, int consumeAmount)
+bool IpRateLimiter::allowRequest(const std::string &ipAddress, int consumeAmount)
 {
-    if (globalCapacity == 0) return true; // If capacity is disabled disable checking.
+    if (globalCapacity == 0)
+        return true; // If capacity is disabled disable checking.
 
     if (!ipBuckets.contains(ipAddress))
     {
@@ -57,27 +55,27 @@ bool IpRateLimiter::allowRequest(const std::string& ipAddress, int consumeAmount
 void IpRateLimiter::cleanAll()
 {
 
-    std::erase_if(ipBuckets, [this](auto& bucketMap) {
+    std::erase_if(ipBuckets, [this](auto &bucketMap)
+                  {
     auto& [ip, bucket] = bucketMap;
     bool shouldRemove = bucket.cleanUpIfOld(cleanUpInteval); // clean up minutes
 
     // Debug print
     std::cout << "Checking IP: " << ip << " | Should remove: " << std::boolalpha << shouldRemove << std::endl;
 
-    return shouldRemove;
-});
+    return shouldRemove; });
 }
 
 void IpRateLimiter::printAllIps()
 {
     sharepaste::printLine("Available IP, printing that it works to call.");
-    for (auto& [ip, tokenBucket] : ipBuckets)
+    for (auto &[ip, tokenBucket] : ipBuckets)
     {
         sharepaste::printLine("Available IP in memory: {}", ip);
     }
 }
 
-double IpRateLimiter::checkTokens(const std::string& ipAddress)
+double IpRateLimiter::checkTokens(const std::string &ipAddress)
 {
     if (!ipBuckets.contains(ipAddress))
     {
@@ -86,7 +84,7 @@ double IpRateLimiter::checkTokens(const std::string& ipAddress)
     return ipBuckets.at(ipAddress).returnTokensLeft();
 }
 
-bool IpRateLimiter::isBlocked(const std::string& ipAddress)
+bool IpRateLimiter::isBlocked(const std::string &ipAddress)
 {
     if (!ipBuckets.contains(ipAddress))
     {
@@ -95,7 +93,7 @@ bool IpRateLimiter::isBlocked(const std::string& ipAddress)
     return ipBuckets.at(ipAddress).isBlocked();
 }
 
-std::chrono::seconds IpRateLimiter::blockTimeLeft(const std::string& ipAddress)
+std::chrono::seconds IpRateLimiter::blockTimeLeft(const std::string &ipAddress)
 {
     if (!ipBuckets.contains(ipAddress))
     {
@@ -104,7 +102,6 @@ std::chrono::seconds IpRateLimiter::blockTimeLeft(const std::string& ipAddress)
     return ipBuckets.at(ipAddress).blockTimeLeft();
 }
 // needs a way to call isblocked and block time left in for each ip address
-
 
 TokenBucket::TokenBucket(int capacity, double refillRate, int blockAttemptWindow, int blockDuration, int blockMaxAttempts)
 {
@@ -133,9 +130,11 @@ bool TokenBucket::consume(const int amountToConsume)
 {
     auto rightNow = std::chrono::steady_clock::now();
 
-    if (capacity == 0) return true; // to disable rate limiting set capacity to 0
+    if (capacity == 0)
+        return true; // to disable rate limiting set capacity to 0
 
-    if (rightNow < blockUntil) return false; // long blocks for repeated failures
+    if (rightNow < blockUntil)
+        return false; // long blocks for repeated failures
 
     refillTokens();
 

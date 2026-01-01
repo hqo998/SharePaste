@@ -13,26 +13,24 @@
 
 using json = nlohmann::json;
 
-
 namespace sharepaste
 {
     namespace env
     {
-        std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies"));   // format like 192.168.0.1, 192.168.0.2, 192.168.0.92
-        int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                          // format with an int like 10 and set to 0 to disable rate limiting
-        double tokenRefillRate = fetchEnvDouble("SP_RateLimit_TokenCapacity", .5);                  // format with an double like .5
+        std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies")); // format like 192.168.0.1, 192.168.0.2, 192.168.0.92
+        int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                         // format with an int like 10 and set to 0 to disable rate limiting
+        double tokenRefillRate = fetchEnvDouble("SP_RateLimit_TokenCapacity", .5);                 // format with an double like .5
 
-        int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5);                 // format with an int like 5
-        int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);                    // format with an int like 10
-        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 0);                          // format with an int like 10 and set to 0 to disable long blocks
+        int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5
+        int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10
+        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 0);           // format with an int like 10 and set to 0 to disable long blocks
 
         // need to add way to clean up old ips in a background thread
     }
 
     managerSQL G_DATABASE;
-    IpRateLimiter G_RATELIMITER(env::tokenCapacity, env::tokenRefillRate, env::blockAttemptWindow, env::blockDuration, env::blockMaxAttempts );
-    inline constexpr int uniqueCodeLength {15};   // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
-
+    IpRateLimiter G_RATELIMITER(env::tokenCapacity, env::tokenRefillRate, env::blockAttemptWindow, env::blockDuration, env::blockMaxAttempts);
+    inline constexpr int uniqueCodeLength{15}; // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
 
 }
 
@@ -43,11 +41,11 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
     {
-      auto val = req.get_header_value("Content-Length");
+        auto val = req.get_header_value("Content-Length");
 
-      sharepaste::printLine("[POST - API NEW] INVALID Request has issues.");
-      res.set_content("Request Invalid! Malformed", "text/plain");
-      return;
+        sharepaste::printLine("[POST - API NEW] INVALID Request has issues.");
+        res.set_content("Request Invalid! Malformed", "text/plain");
+        return;
     }
 
     // Check for crazy large payload
@@ -87,15 +85,13 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // if nothing returned early then respond with the sharelink
     res.set_content(uniqueCode, "text/plain");
     sharepaste::printLine("[POST - API NEW] New Paste Entry - {}", uniqueCode);
-
 }
-
 
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
     sharepaste::printLine("[GET - Paste Data] Recieved.");
 
-    std::string uniqueCode {"NO CODE PROVIDED"};
+    std::string uniqueCode{"NO CODE PROVIDED"};
 
     // check if code param exists
     if (req.has_param("code"))
@@ -121,7 +117,6 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
         return;
     }
 
-
     json responsePayload;
     responsePayload["pasteBody"] = retrievedPaste->pasteText;
     responsePayload["viewCount"] = retrievedPaste->viewCount;
@@ -134,11 +129,9 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     res.set_content(responsePayload.dump(), "text/json");
 }
 
-
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
     sharepaste::printLine("[GET - Webpage] Sending Static Page");
-
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");
@@ -155,8 +148,8 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
 
     // print client info
     sharepaste::printLine("{} with this many Tokens {}, are they blocked? |{}| and for how long left {}s.",
-        sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip),
-        sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip).count());
+                          sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip),
+                          sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip).count());
 
     // rate limit
     if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), 1))
@@ -169,8 +162,7 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
     return httplib::Server::HandlerResponse::Unhandled;
 }
 
-
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
     if (argc > 1) // Check CLI arguements
     {
@@ -191,8 +183,11 @@ int main(int argc, char* argv[])
     {
         svr.set_trusted_proxies(sharepaste::env::trustedProxy);
         std::for_each(sharepaste::env::trustedProxy.cbegin(), sharepaste::env::trustedProxy.cend(),
-            [](std::string_view n){ sharepaste::printLine ( "[Trusted Proxy] Set: {}", n); });
-    } else sharepaste::printLine ( "[Trusted Proxy] None Set...");
+                      [](std::string_view n)
+                      { sharepaste::printLine("[Trusted Proxy] Set: {}", n); });
+    }
+    else
+        sharepaste::printLine("[Trusted Proxy] None Set...");
 
     // setting up local db
     const std::string database_subfolder = "data";
@@ -225,13 +220,14 @@ int main(int argc, char* argv[])
     svr.Get(R"(.*)", getPasteWebpage);
 
     // default host/port
-    std::string host  = "0.0.0.0";
+    std::string host = "0.0.0.0";
     int port = 8080;
 
     // binds to network
     sharepaste::printLine("[Info] Attempting to listen on {}:{}", host, port);
 
-    if (!svr.listen(host, port)) {
+    if (!svr.listen(host, port))
+    {
         std::cerr << "[ERROR] Failed to bind to " << host << ":" << port
                   << ". Maybe another program is using it?\n";
         return -1;

@@ -9,8 +9,6 @@
 
 #include <httplib.h>
 
-
-
 namespace sharepaste
 {
     std::string generateRandomString(size_t length)
@@ -34,7 +32,7 @@ namespace sharepaste
     {
         printLine("[Test] Checking for database folder");
 
-        std::string folderpathExists { std::format("./{}", subfolder)};
+        std::string folderpathExists{std::format("./{}", subfolder)};
         if (!std::filesystem::exists(folderpathExists))
         {
             std::filesystem::create_directory(folderpathExists);
@@ -48,7 +46,7 @@ namespace sharepaste
 
     std::string getReqClientInfoString(const httplib::Request &req)
     {
-        RequestInfo info {getReqClientInfoParse(req)};
+        RequestInfo info{getReqClientInfoParse(req)};
 
         return std::format(
             "Request Data | URL-Path: '{}' / User-Agent: '{}' / Browser: '{}' / Platform: '{}' / Mobile: '{}' / IP: '{}:{}'",
@@ -58,8 +56,7 @@ namespace sharepaste
             info.platform,
             info.mobile,
             info.ip,
-            info.port
-        );
+            info.port);
     }
 
     RequestInfo getReqClientInfoParse(const httplib::Request &req)
@@ -72,11 +69,11 @@ namespace sharepaste
         RequestInfo info;
 
         info.userAgent = get("User-Agent");        // user agent
-        info.browser = get("sec-ch-ua");            // browser
-        info.platform = get("sec-ch-ua-platform");  // platform
-        info.mobile = get("sec-ch-ua-mobile");      // is mobile?
-        info.ip = req.remote_addr;                  // request ip address
-        info.port = req.remote_port;                // request ip port
+        info.browser = get("sec-ch-ua");           // browser
+        info.platform = get("sec-ch-ua-platform"); // platform
+        info.mobile = get("sec-ch-ua-mobile");     // is mobile?
+        info.ip = req.remote_addr;                 // request ip address
+        info.port = req.remote_port;               // request ip port
         info.urlPath = req.path;
 
         return info;
@@ -84,13 +81,13 @@ namespace sharepaste
 
     std::string fetchEnv(const std::string_view varEnv)
     {
-        const char* val = std::getenv(std::string(varEnv).c_str());
+        const char *val = std::getenv(std::string(varEnv).c_str());
         if (val == nullptr)
         {
             // add empty logic... check .env file?
             return std::string();
         }
-        return std::string { val };
+        return std::string{val};
     }
 
     int fetchEnvInt(const std::string_view varEnv, int defaultValue)
@@ -119,7 +116,6 @@ namespace sharepaste
         }
     }
 
-
     const std::string_view trimLeadingChar(std::string_view word, const std::string_view charToRemove)
     {
         if (!word.empty())
@@ -134,12 +130,12 @@ namespace sharepaste
     {
         std::vector<std::string> result;
 
-        std::size_t lastFound { 0 };
+        std::size_t lastFound{0};
         std::size_t found = arrayString.find_first_of(splitChar);
 
         while (found != std::string::npos)
         {
-            auto token = trimLeadingChar(arrayString.substr(lastFound, found-lastFound));
+            auto token = trimLeadingChar(arrayString.substr(lastFound, found - lastFound));
 
             if (lastFound != found && !token.empty()) // accounts for commas doubled up and empty spaced commas
             {
@@ -147,7 +143,7 @@ namespace sharepaste
             }
 
             lastFound = found + 1;
-            found = arrayString.find_first_of(splitChar, found+1);
+            found = arrayString.find_first_of(splitChar, found + 1);
         }
 
         auto token = trimLeadingChar(arrayString.substr(lastFound));
@@ -160,4 +156,3 @@ namespace sharepaste
         return result;
     }
 }
-

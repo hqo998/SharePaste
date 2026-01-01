@@ -14,7 +14,7 @@ namespace sharepaste
         std::string platform;
         std::string urlPath;
         std::string ip;
-        int port {};
+        int port{};
     };
 
     std::string generateRandomString(size_t length);
@@ -22,17 +22,17 @@ namespace sharepaste
     std::string getReqClientInfoString(const httplib::Request &req);
     RequestInfo getReqClientInfoParse(const httplib::Request &req);
 
-    template<typename... Args>
-    inline constexpr void printLine( std::string_view format, const Args&... args )
+    template <typename... Args>
+    inline constexpr void printLine(std::string_view format, const Args &...args)
     {
-        std::cout << std::vformat( format, std::make_format_args( args... ) ) << std::endl;
+        std::cout << std::vformat(format, std::make_format_args(args...)) << std::endl;
     }
 
     std::string fetchEnv(const std::string_view varEnv);
 
     int fetchEnvInt(const std::string_view varEnv, int defaultValue);
     double fetchEnvDouble(const std::string_view varEnv, double defaultValue);
-    
+
     const std::string_view trimLeadingChar(std::string_view word, const std::string_view charToRemove = " ");
     std::vector<std::string> stringToSplitArray(const std::string_view arrayString, const std::string_view splitChar = ",");
 }
