@@ -23,12 +23,12 @@ namespace sharepaste
         int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                         // format with an int like 10 and set to 0 to disable rate limiting
         double tokenRefillRate = fetchEnvDouble("SP_RateLimit_TokenCapacity", .5);                 // format with an double like .5
 
-        int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5
-        int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10
-        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 10);           // format with an int like 10 and set to 0 to disable long blocks
+        int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5 - minutes
+        int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10 - attempts
+        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 10);           // format with an int like 10 and set to 0 to disable long blocks - minutes
 
-        std::chrono::seconds cleanUpInterval = std::chrono::seconds(fetchEnvInt("SP_RateLimit_CleanUpInterval", 60));   // how often to run ratelimit memory clean up.
-        int cleanUpMinimumAge = fetchEnvInt("SP_RateLimit_CleanMinimumAge", 5);  // how old should the ips last check for them to be considered for removal.
+        std::chrono::seconds cleanUpInterval = std::chrono::seconds(fetchEnvInt("SP_RateLimit_CleanUpInterval", 600));   // how often to run ratelimit memory clean up. - seconds
+        int cleanUpMinimumAge = fetchEnvInt("SP_RateLimit_CleanMinimumAge", 5);  // how old should the ips last check for them to be considered for removal. - minutes
     }
 
     managerSQL G_DATABASE;

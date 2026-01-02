@@ -76,8 +76,13 @@ document.getElementById("shareButton").addEventListener("click", function ()
 
     if (!pasteRequest) return; // early return for empty value
 
-    if (pasteRequest == G_LASTTEXT && !document.getElementById("shareLink")?.value.startsWith("http")) return;
-    else G_LASTTEXT = pasteRequest;
+    if (pasteRequest == G_LASTTEXT && document.getElementById("shareLink").value.startsWith("http")) {
+      console.log("Matched lasted text and last attempt didn't have an error")
+      return;
+    }
+    else {
+      G_LASTTEXT = pasteRequest;
+    }
 
     const origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
     fetch("/api/new",
@@ -99,6 +104,8 @@ document.getElementById("shareButton").addEventListener("click", function ()
     .then(({text, status}) => {
       if (status == 200) {
         document.getElementById("shareLink").value = origin + '/' + text;
+      } else if (status == 429) {
+        document.getElementById("shareLink").value = "Too many requests..."
       }
       else {
         document.getElementById("shareLink").value = text;
