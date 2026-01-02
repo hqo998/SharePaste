@@ -21,7 +21,7 @@ namespace sharepaste
     {
         std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies")); // format like 192.168.0.1, 192.168.0.2, 192.168.0.92
         int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                         // format with an int like 10 and set to 0 to disable rate limiting
-        double tokenRefillRate = fetchEnvDouble("SP_RateLimit_TokenCapacity", .5);                 // format with an double like .5
+        double tokenRefillRate = fetchEnvDouble("SP_RateLimit_RefillRate", .5);                 // format with an double like .5
 
         int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5 - minutes
         int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10 - attempts
