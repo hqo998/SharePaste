@@ -40,7 +40,7 @@ docker run -d \
 ```
 ## Docker Compose
 ### Quickstart.
-```
+```dockerfile
 services:
   sharepaste:
     container_name: sharepaste
@@ -53,7 +53,7 @@ services:
 ```
 ---
 ### Advanced Configuration
-```
+```dockerfile
 services:
   sharepaste:
     container_name: sharepaste
@@ -66,7 +66,7 @@ services:
     environment:
       - SP_TrustedProxies=192.168.0.1, 192.168.0.2  # Change to your proxy IPs
       - SP_RateLimit_TokenCapacity=10               # Set to 0 to disable rate limiting
-      - SP_RateLimit_RefillRate=0.5
+      - SP_RateLimit_RefillRate=0.5                 # Refill tokens per second
       - SP_RateLimit_BlockAttemptWindow=5           # Minutes
       - SP_RateLimit_BlockMaxAttempts=10            # Count
       - SP_RateLimit_BlockDuration=10               # Minutes (0 to disable)
@@ -75,7 +75,7 @@ services:
 ```
 ---
 ### With Auto-Update.
-```
+```dockerfile
 services:
   sharepaste:
     container_name: sharepaste
