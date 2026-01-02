@@ -46,7 +46,7 @@ namespace sharepaste
         ipManager.allowRequest(std::string("192.168.0.420"), 1);
         std::this_thread::sleep_for(std::chrono::seconds(90));
         ipManager.allowRequest(std::string("192.168.0.1111"), 1);
-        ipManager.cleanAll();
+        ipManager.cleanAll(10);
         ipManager.allowRequest(std::string("192.168.0.1111"), 1);
         ipManager.printAllIps();
         exit(-1);

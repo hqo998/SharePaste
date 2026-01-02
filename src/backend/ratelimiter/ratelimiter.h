@@ -1,6 +1,9 @@
 #pragma once
 
 #include <deque>
+#include <memory>
+#include <mutex>
+#include <shared_mutex>
 
 class TokenBucket
 {
@@ -16,6 +19,8 @@ private:
     std::deque<std::chrono::steady_clock::time_point> failureTimestamps;
     std::chrono::steady_clock::time_point blockUntil;
 
+    std::shared_mutex bucketMutex;
+
     void refillTokens();
 
 public:
@@ -30,10 +35,11 @@ public:
 class IpRateLimiter
 {
 private:
-    std::unordered_map<std::string, TokenBucket> ipBuckets;
+    std::shared_mutex bucketMapMutex;
+
+    std::unordered_map<std::string, std::shared_ptr<TokenBucket>> ipBuckets;
     int globalCapacity;
     double globalRate;
-    int cleanUpInteval = 30;
 
     int blockMaxAttempts;   // how many rate limit failures in a time frame
     int blockAttemptWindow; // how long to check for failed attempts for in mins
@@ -45,6 +51,7 @@ public:
     double checkTokens(const std::string &ipAddress);
     bool isBlocked(const std::string &ipAddress);
     std::chrono::seconds blockTimeLeft(const std::string &ipAddress);
-    void cleanAll();
+    void cleanAll(int cleanUpMinimumAge);
+    int size();
     void printAllIps();
 };

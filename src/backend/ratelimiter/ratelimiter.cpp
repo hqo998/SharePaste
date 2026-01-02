@@ -11,21 +11,12 @@
 //  if tokens > 0 → allow and tokens -= 1
 //  else → reject
 
-// https://github.com/rigtorp/TokenBucket/blob/master/TokenBucket.h
-
-// design considerations
-// Needs individual token buckets for every ip address
-// Only calculate how many tokens a bucket should be refilled when a request that uses said bucket comes in, instead of a background process constantly updating
-
-// how i want to access the bucket
-/*
-bool tokenBucket.consume(ipAddress);
-*/
-
 #include <chrono>
 #include <string>
 #include <algorithm>
 #include <deque>
+#include <mutex>
+#include <shared_mutex>
 
 #include <utility.h>
 #include <ratelimiter.h>
@@ -41,67 +32,94 @@ IpRateLimiter::IpRateLimiter(int capacity, double refillRate, int blockAttemptWi
 
 bool IpRateLimiter::allowRequest(const std::string &ipAddress, int consumeAmount)
 {
+
     if (globalCapacity == 0)
         return true; // If capacity is disabled disable checking.
 
-    if (!ipBuckets.contains(ipAddress))
     {
-        ipBuckets.emplace(ipAddress, TokenBucket(globalCapacity, globalRate, blockAttemptWindow, blockDuration, blockMaxAttempts));
+        std::shared_lock<std::shared_mutex> lock(bucketMapMutex);
+        if (ipBuckets.contains(ipAddress))
+        {
+            return ipBuckets.at(ipAddress)->consume(consumeAmount);
+        }
     }
 
-    return ipBuckets.at(ipAddress).consume(consumeAmount);
+    {
+        std::unique_lock<std::shared_mutex> lock(bucketMapMutex);
+        if (!ipBuckets.contains(ipAddress))
+        {
+            ipBuckets.emplace(ipAddress, std::make_shared<TokenBucket>(globalCapacity, globalRate, blockAttemptWindow, blockDuration, blockMaxAttempts));
+        }
+
+        return ipBuckets.at(ipAddress)->consume(consumeAmount);
+    }
 }
 
-void IpRateLimiter::cleanAll()
+void IpRateLimiter::cleanAll(int cleanUpMinimumAge)
 {
+    std::unique_lock<std::shared_mutex> lock(bucketMapMutex);
 
-    std::erase_if(ipBuckets, [this](auto &bucketMap)
-                  {
-    auto& [ip, bucket] = bucketMap;
-    bool shouldRemove = bucket.cleanUpIfOld(cleanUpInteval); // clean up minutes
+    std::erase_if(ipBuckets, [&](auto &bucketMap)
+                {
+                    auto& [ip, bucket] = bucketMap;
+                    bool shouldRemove = bucket->cleanUpIfOld(cleanUpMinimumAge); // clean up minutes
 
-    // Debug print
-    std::cout << "Checking IP: " << ip << " | Should remove: " << std::boolalpha << shouldRemove << std::endl;
+                    // Debug print
+                    // std::cout << "Checking IP: " << ip << " | Should remove: " << std::boolalpha << shouldRemove << std::endl;
+                    return shouldRemove;
+                });
+}
 
-    return shouldRemove; });
+int IpRateLimiter::size()
+{
+    std::shared_lock<std::shared_mutex> lock(bucketMapMutex);
+    return static_cast<int>(ipBuckets.size());
 }
 
 void IpRateLimiter::printAllIps()
 {
-    sharepaste::printLine("Available IP, printing that it works to call.");
+    std::shared_lock<std::shared_mutex> lock(bucketMapMutex);
+    sharepaste::printLine("Available IPs:");
     for (auto &[ip, tokenBucket] : ipBuckets)
     {
-        sharepaste::printLine("Available IP in memory: {}", ip);
+        sharepaste::printLine("{}", ip);
     }
 }
 
 double IpRateLimiter::checkTokens(const std::string &ipAddress)
 {
+    std::shared_lock<std::shared_mutex> lock(bucketMapMutex);
+
     if (!ipBuckets.contains(ipAddress))
     {
         return globalCapacity;
     }
-    return ipBuckets.at(ipAddress).returnTokensLeft();
+    return ipBuckets.at(ipAddress)->returnTokensLeft();
 }
 
 bool IpRateLimiter::isBlocked(const std::string &ipAddress)
 {
+    std::shared_lock<std::shared_mutex> lock(bucketMapMutex);
+
     if (!ipBuckets.contains(ipAddress))
     {
         return false;
     }
-    return ipBuckets.at(ipAddress).isBlocked();
+    return ipBuckets.at(ipAddress)->isBlocked();
 }
 
 std::chrono::seconds IpRateLimiter::blockTimeLeft(const std::string &ipAddress)
 {
+    std::shared_lock<std::shared_mutex> lock(bucketMapMutex);
+
     if (!ipBuckets.contains(ipAddress))
     {
         return std::chrono::seconds(0);
     }
-    return ipBuckets.at(ipAddress).blockTimeLeft();
+    return ipBuckets.at(ipAddress)->blockTimeLeft();
 }
-// needs a way to call isblocked and block time left in for each ip address
+
+// =====================================================================================
 
 TokenBucket::TokenBucket(int capacity, double refillRate, int blockAttemptWindow, int blockDuration, int blockMaxAttempts)
 {
@@ -136,6 +154,8 @@ bool TokenBucket::consume(const int amountToConsume)
     if (rightNow < blockUntil)
         return false; // long blocks for repeated failures
 
+    std::unique_lock<std::shared_mutex> lock(bucketMutex);
+
     refillTokens();
 
     if (tokens >= amountToConsume)
@@ -166,6 +186,7 @@ bool TokenBucket::consume(const int amountToConsume)
 
 std::chrono::seconds TokenBucket::blockTimeLeft()
 {
+    std::shared_lock<std::shared_mutex> lock(bucketMutex);
     if (isBlocked())
     {
         auto rightNow = std::chrono::steady_clock::now();
@@ -177,6 +198,7 @@ std::chrono::seconds TokenBucket::blockTimeLeft()
 
 bool TokenBucket::isBlocked()
 {
+    std::shared_lock<std::shared_mutex> lock(bucketMutex);
     auto rightNow = std::chrono::steady_clock::now();
 
     if (rightNow < blockUntil)
@@ -187,6 +209,7 @@ bool TokenBucket::isBlocked()
 
 bool TokenBucket::cleanUpIfOld(int minutes)
 {
+    std::shared_lock<std::shared_mutex> lock(bucketMutex);
     auto rightNow = std::chrono::steady_clock::now();
     auto elapsedTime = std::chrono::duration_cast<std::chrono::milliseconds>(rightNow - lastRefillTime);
     if (std::chrono::duration_cast<std::chrono::seconds>(elapsedTime).count() >= minutes * 60)
@@ -198,6 +221,7 @@ bool TokenBucket::cleanUpIfOld(int minutes)
 
 double TokenBucket::returnTokensLeft()
 {
+    std::unique_lock<std::shared_mutex> lock(bucketMutex);
     refillTokens();
     return tokens;
 }

@@ -1,6 +1,8 @@
 #include <string>
 #include <string_view>
 #include <optional>
+#include <thread>
+#include <chrono>
 
 #include <sqlite3.h>
 #include <httplib.h>
@@ -23,9 +25,10 @@ namespace sharepaste
 
         int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5
         int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10
-        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 0);           // format with an int like 10 and set to 0 to disable long blocks
+        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 10);           // format with an int like 10 and set to 0 to disable long blocks
 
-        // need to add way to clean up old ips in a background thread
+        std::chrono::seconds cleanUpInterval = std::chrono::seconds(fetchEnvInt("SP_RateLimit_CleanUpInterval", 60));   // how often to run ratelimit memory clean up.
+        int cleanUpMinimumAge = fetchEnvInt("SP_RateLimit_CleanMinimumAge", 5);  // how old should the ips last check for them to be considered for removal.
     }
 
     managerSQL G_DATABASE;
@@ -151,8 +154,11 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
                           sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip),
                           sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip).count());
 
+    int tokenCost = 1;
+    if (req.matched_route == "/api/new") tokenCost = 2;
+
     // rate limit
-    if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), 1))
+    if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), tokenCost))
     {
         res.status = 429;
         res.set_header("Connection", "close");
@@ -160,6 +166,21 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
     }
 
     return httplib::Server::HandlerResponse::Unhandled;
+}
+
+void rateLimitCleanUpThread(std::chrono::seconds loopDuration)
+{
+    while (1)
+    {
+        if (sharepaste::G_RATELIMITER.size() > 0)
+        {
+            sharepaste::printLine("[Clean RateLimit] {} IP/s in memory.", sharepaste::G_RATELIMITER.size());
+            sharepaste::G_RATELIMITER.cleanAll(sharepaste::env::cleanUpMinimumAge); // minutes
+            sharepaste::printLine("[Clean RateLimit] {} IP/s after clean.", sharepaste::G_RATELIMITER.size());
+            // sharepaste::G_RATELIMITER.printAllIps();
+        }
+        std::this_thread::sleep_for(std::max(loopDuration, std::chrono::seconds(1)));
+    }
 }
 
 int main(int argc, char *argv[])
@@ -222,6 +243,10 @@ int main(int argc, char *argv[])
     // default host/port
     std::string host = "0.0.0.0";
     int port = 8080;
+
+    // create ratelimit cleaning cycle
+    std::thread rateLimitCleaner(rateLimitCleanUpThread, sharepaste::env::cleanUpInterval);
+    rateLimitCleaner.detach();
 
     // binds to network
     sharepaste::printLine("[Info] Attempting to listen on {}:{}", host, port);
