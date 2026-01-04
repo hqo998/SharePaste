@@ -72,6 +72,7 @@ services:
       - SP_RateLimit_BlockDuration=10               # Minutes (0 to disable)
       - SP_RateLimit_CleanUpInterval=600            # Seconds
       - SP_RateLimit_CleanMinimumAge=5              # Minutes
+      - SP_AdminContactEmail=admin@email            # Displayed email for report contact.
 ```
 ---
 ### With Auto-Update.
@@ -116,9 +117,10 @@ services:
 | `SP_RateLimit_BlockDuration` | Integer | `10` | Block duration (minutes). Set to `0` to disable long blocks. |
 | `SP_RateLimit_CleanUpInterval` | Integer | `600` | IP Tracker bucket cleanup frequency (seconds). |
 | `SP_RateLimit_CleanMinimumAge` | Integer | `5` | Minutes an IP must be idle before bucket removal. |
+| `SP_AdminContactEmail` | String | `example@example` | Email to contact for user reports. Shows on the about page. |
 
 ## Dependancies
-- [cpp-httplib](https://github.com/yhirose/cpp-httplib) - 
+- [cpp-httplib](https://github.com/yhirose/cpp-httplib)
 - [SQLite3](https://sqlite.org)
 - [Nlohmann JSON](https://github.com/nlohmann/json)
 - These are automatically downloaded and configured when built with provided CMAKE

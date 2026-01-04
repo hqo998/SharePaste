@@ -20,15 +20,17 @@ namespace sharepaste
     namespace env
     {
         std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies")); // format like 192.168.0.1, 192.168.0.2, 192.168.0.92
-        int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                         // format with an int like 10 and set to 0 to disable rate limiting
-        double tokenRefillRate = fetchEnvDouble("SP_RateLimit_RefillRate", .5);                 // format with an double like .5
+        const int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 15);                         // format with an int like 10 and set to 0 to disable rate limiting
+        const double tokenRefillRate = fetchEnvDouble("SP_RateLimit_RefillRate", .5);                 // format with an double like .5
 
-        int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5 - minutes
-        int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10 - attempts
-        int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 10);           // format with an int like 10 and set to 0 to disable long blocks - minutes
+        const int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5 - minutes
+        const int blockMaxAttempts = fetchEnvInt("SP_RateLimit_BlockMaxAttempts", 10);    // format with an int like 10 - attempts
+        const int blockDuration = fetchEnvInt("SP_RateLimit_BlockDuration", 10);           // format with an int like 10 and set to 0 to disable long blocks - minutes
 
-        std::chrono::seconds cleanUpInterval = std::chrono::seconds(fetchEnvInt("SP_RateLimit_CleanUpInterval", 600));   // how often to run ratelimit memory clean up. - seconds
-        int cleanUpMinimumAge = fetchEnvInt("SP_RateLimit_CleanMinimumAge", 5);  // how old should the ips last check for them to be considered for removal. - minutes
+        const std::chrono::seconds cleanUpInterval = std::chrono::seconds(fetchEnvInt("SP_RateLimit_CleanUpInterval", 600));   // how often to run ratelimit memory clean up. - seconds
+        const int cleanUpMinimumAge = fetchEnvInt("SP_RateLimit_CleanMinimumAge", 5);  // how old should the ips last check for them to be considered for removal. - minutes
+
+        const std::string adminEmail = fetchEnv("SP_AdminContactEmail"); // admin email to fill out about page
     }
 
     managerSQL G_DATABASE;
@@ -134,10 +136,26 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
-    sharepaste::printLine("[GET - Webpage] Sending Static Page");
+    sharepaste::printLine("[GET - Webpage] Sending Home Page");
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");
+}
+
+void getAboutWebpage(const httplib::Request &req, httplib::Response &res)
+{
+    sharepaste::printLine("[GET - Webpage] Sending About Page");
+
+    // serves script.js and style.css that are statically mounted at /www.
+    res.set_file_content("./www/about.html", "text/html");
+}
+
+void getApiEmail(const httplib::Request &req, httplib::Response &res)
+{
+    sharepaste::printLine("[GET - Webpage] Sending About Page");
+    // "admin@email"
+    res.set_content(sharepaste::env::adminEmail, "text/plain");
+    // res.set_content("admin@email", "text/plain");
 }
 
 httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Request &req, httplib::Response &res)
@@ -229,6 +247,9 @@ int main(int argc, char *argv[])
     sharepaste::printLine("[Register] Adding get /api/find handler");
     svr.Get("/api/find", getRequestPasteData);
 
+    sharepaste::printLine("[Register] Adding get /api/email handler");
+    svr.Get("/api/email", getApiEmail);
+
     // mounts www folder so js, html, css can be accessed via /www/something.sm without invidiual handlers
     auto ret = svr.set_mount_point("/www", "./www");
     if (!ret)
@@ -236,6 +257,9 @@ int main(int argc, char *argv[])
         sharepaste::printLine("Cant mount /www to ./www");
         exit(-1);
     }
+
+    sharepaste::printLine("[Register] Adding get /about handler");
+    svr.Get("/about", getAboutWebpage);
 
     sharepaste::printLine("[Register] Adding get /* handler");
     svr.Get(R"(.*)", getPasteWebpage);
