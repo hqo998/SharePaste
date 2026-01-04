@@ -80,6 +80,24 @@ body {
     font-weight: bold;
 }
 
+.headerIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 24px;
+    /* padding: 0 12px; */
+
+    text-decoration: none;
+}
+
+.headerIcon img {
+    height: 130%;
+    width: auto;
+    display: block;
+    cursor: pointer;
+}
+
 .footerPromo {
     margin-inline: auto;
     font-size: 0.9rem;
@@ -109,6 +127,7 @@ body {
 
 .headerBut:hover {
     background-color: var(--button-hover);
+    cursor: pointer;
 }
 
 .headerBut:active {
