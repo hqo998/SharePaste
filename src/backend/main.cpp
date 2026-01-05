@@ -39,6 +39,23 @@ namespace sharepaste
 
 }
 
+void addSecurityHeaders(httplib::Response &res)
+{
+    res.set_header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+
+    res.set_header("X-Frame-Options", "DENY");
+
+    res.set_header("X-Content-Type-Options", "nosniff");
+
+    res.set_header("server", "server");
+
+    res.set_header("Referrer-Policy", "strict-origin-when-cross-origin");
+
+    res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none';");
+    // block these
+    res.set_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+}
+
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
     sharepaste::printLine("[POST - API NEW] Recieved.");
@@ -158,6 +175,12 @@ void getApiEmail(const httplib::Request &req, httplib::Response &res)
     // res.set_content("admin@email", "text/plain");
 }
 
+void getDrop404Request(const httplib::Request &req, httplib::Response &res)
+{
+    res.status = 404;
+    res.set_header("Connection", "close");
+}
+
 httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Request &req, httplib::Response &res)
 {
     if (req.path == "/.well-known/appspecific/com.chrome.devtools.json")
@@ -171,9 +194,10 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
     sharepaste::printLine("{} with this many Tokens {}, are they blocked? |{}| and for how long left {}s.",
                           sharepaste::getReqClientInfoString(req), sharepaste::G_RATELIMITER.checkTokens(clientInfo.ip),
                           sharepaste::G_RATELIMITER.isBlocked(clientInfo.ip), sharepaste::G_RATELIMITER.blockTimeLeft(clientInfo.ip).count());
-
     int tokenCost = 1;
     if (req.matched_route == "/api/new") tokenCost = 2;
+
+    addSecurityHeaders(res);
 
     // rate limit
     if (!sharepaste::G_RATELIMITER.allowRequest((clientInfo.ip), tokenCost))
@@ -260,6 +284,10 @@ int main(int argc, char *argv[])
 
     sharepaste::printLine("[Register] Adding get /about handler");
     svr.Get("/about", getAboutWebpage);
+
+    sharepaste::printLine("[Register] Common paths to 404.");
+    svr.Get("/security.txt", getDrop404Request);
+    svr.Get("/robots.txt", getDrop404Request);
 
     sharepaste::printLine("[Register] Adding get /* handler");
     svr.Get(R"(.*)", getPasteWebpage);
