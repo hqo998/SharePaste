@@ -12,3 +12,19 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error(err);
     });
 });
+
+// footer close
+document.getElementById("footerCloseButton").addEventListener("click", function ()
+{
+    document.getElementById("footerBar").classList.add("hidden");
+    sessionStorage.setItem("isFooterClosed", "true");
+});
+
+// stay closed on reload
+document.addEventListener('DOMContentLoaded', () => {
+  const storageData = sessionStorage.getItem("isFooterClosed");
+  if (storageData == "true") {
+    document.getElementById("footerBar").classList.add("hidden");
+    sessionStorage.setItem("isFooterClosed", "true");
+  }
+});
