@@ -73,6 +73,7 @@ services:
       - SP_RateLimit_CleanUpInterval=600            # Seconds
       - SP_RateLimit_CleanMinimumAge=5              # Minutes
       - SP_AdminContactEmail=admin@email            # Displayed email for report contact.
+      - SP_RateLimit_MaxPasteSize=100000            # Character/s Limit.
 ```
 ---
 ### With Auto-Update.
@@ -118,6 +119,7 @@ services:
 | `SP_RateLimit_CleanUpInterval` | Integer | `600` | IP Tracker bucket cleanup frequency (seconds). |
 | `SP_RateLimit_CleanMinimumAge` | Integer | `5` | Minutes an IP must be idle before bucket removal. |
 | `SP_AdminContactEmail` | String | `example@example` | Email to contact for user reports. Shows on the about page. |
+| `SP_RateLimit_MaxPasteSize` | Integer | `100000` | Max characters allowed per paste. Frontend limit 5 million in text box. |
 
 ## Dependancies
 - [cpp-httplib](https://github.com/yhirose/cpp-httplib)

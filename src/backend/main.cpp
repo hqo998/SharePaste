@@ -20,7 +20,7 @@ namespace sharepaste
     namespace env
     {
         std::vector<std::string> trustedProxy = stringToSplitArray(fetchEnv("SP_TrustedProxies")); // format like 192.168.0.1, 192.168.0.2, 192.168.0.92
-        const int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 15);                         // format with an int like 10 and set to 0 to disable rate limiting
+        const int tokenCapacity = fetchEnvInt("SP_RateLimit_TokenCapacity", 10);                         // format with an int like 10 and set to 0 to disable rate limiting
         const double tokenRefillRate = fetchEnvDouble("SP_RateLimit_RefillRate", .5);                 // format with an double like .5
 
         const int blockAttemptWindow = fetchEnvInt("SP_RateLimit_BlockAttemptWindow", 5); // format with an int like 5 - minutes
@@ -31,6 +31,8 @@ namespace sharepaste
         const int cleanUpMinimumAge = fetchEnvInt("SP_RateLimit_CleanMinimumAge", 5);  // how old should the ips last check for them to be considered for removal. - minutes
 
         const std::string adminEmail = fetchEnv("SP_AdminContactEmail"); // admin email to fill out about page
+
+        const int maxPasteSize = fetchEnvInt("SP_RateLimit_MaxPasteSize", 100000); // character limit for backend to disregard request.
     }
 
     managerSQL G_DATABASE;
@@ -71,7 +73,7 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     }
 
     // Check for crazy large payload
-    if (req.body.size() > 100000)
+    if (req.body.size() > sharepaste::env::maxPasteSize)
     {
         sharepaste::printLine("[POST - API NEW] INVALID Request is too large.");
         res.status = httplib::StatusCode::BadRequest_400;

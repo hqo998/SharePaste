@@ -125,7 +125,7 @@ document.getElementById("newButton").addEventListener("click", function ()
 });
 
 // share button
-document.getElementById("shareLink").onclick = async function()
+document.getElementById("shareLink").addEventListener("click", async function()
 {
     if (this.value == "") return;
 
@@ -146,7 +146,7 @@ document.getElementById("shareLink").onclick = async function()
         console.error("Clipboard copy failed", err);
         this.disabled = false;
     }
-}
+});
 
 
 
