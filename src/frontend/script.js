@@ -170,6 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   fetch(`/api/find?code=${encodeURIComponent(uniqueCode)}`)
     .then(res => {
+      if (res.status == 418) {
+        const missingMessage = "404 - Paste not found";
+        document.getElementById('pasteBox').textContent = missingMessage;
+        throw new Error("Paste not found");
+      }
       if (!res.ok) throw new Error('Paste not found');
       return res.json();
     })
@@ -186,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
       updateLineNumbers();
     })
     .catch(err => {
-      document.getElementById('pasteBox').textContent = '';
+      // document.getElementById('pasteBox').textContent = '';
       console.error(err);
     });
 });
