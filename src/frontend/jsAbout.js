@@ -1,4 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const contactEmail = sessionStorage.getItem("ContactEmail");
+
+  console.log(contactEmail);
+  if (contactEmail != null && contactEmail != "") {
+    document.getElementById('ContactEmail').textContent = contactEmail;
+    console.log("Found contact email stored.")
+    return;
+  }
+
     fetch(`/api/email`)
     .then(res => {
       if (!res.ok) throw new Error('Email not found');
@@ -6,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
     .then(data => {
       document.getElementById('ContactEmail').textContent = data;
+      sessionStorage.setItem("ContactEmail", data);
 
     })
     .catch(err => {
