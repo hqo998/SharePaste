@@ -18,6 +18,9 @@
 **Instantly share code** or note snippets with others as a randomly generated URL extension.
 </div>
 
+# Deployed Example
+[26072004.xyz](https://26072004.xyz)
+
 # Features
 
 - **Simple:** Easy to use and setup to get running with minimal manual configuration.
