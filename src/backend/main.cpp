@@ -33,13 +33,13 @@ namespace sharepaste
         const std::string adminEmail = fetchEnv("SP_AdminContactEmail"); // admin email to fill out about page
 
         const int maxPasteSize = fetchEnvInt("SP_RateLimit_MaxPasteSize", 100000); // character limit for backend to disregard request.
-    }
+    } // env
 
     managerSQL G_DATABASE;
     IpRateLimiter G_RATELIMITER(env::tokenCapacity, env::tokenRefillRate, env::blockAttemptWindow, env::blockDuration, env::blockMaxAttempts);
     inline constexpr int uniqueCodeLength{15}; // Roughly 3,527,930,788,646,880 possiblities, chance of a conflict is slim and if it does happen just have the user try the request again ez pz.
 
-}
+} // sharepaste
 
 void addSecurityHeaders(httplib::Response &res)
 {
@@ -56,11 +56,11 @@ void addSecurityHeaders(httplib::Response &res)
     res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none';");
     // block these
     res.set_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-}
+} // addSecurityHeaders
 
 void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res) // set up some sort of rate limiting
 {
-    sharepaste::printLine("[POST - API NEW] Recieved.");
+    // sharepaste::printLine("[POST - API NEW] Recieved.");
 
     // Check for invalid post request
     if (!req.has_header("Content-Length") || req.body.empty())
@@ -109,11 +109,11 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     // if nothing returned early then respond with the sharelink
     res.set_content(uniqueCode, "text/plain");
     sharepaste::printLine("[POST - API NEW] New Paste Entry - {}", uniqueCode);
-}
+} // postRequestAPINewPaste
 
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
-    sharepaste::printLine("[GET - Paste Data] Recieved.");
+    // sharepaste::printLine("[GET - Paste Data] Recieved.");
 
     std::string uniqueCode{"NO CODE PROVIDED"};
 
@@ -151,37 +151,37 @@ void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
     // send out that json babbbbyyyyy
     sharepaste::printLine("[GET - Paste Data] JSON - {}", responsePayload.dump());
     res.set_content(responsePayload.dump(), "text/json");
-}
+} // getRequestPasteData
 
 void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
 {
-    sharepaste::printLine("[GET - Webpage] Sending Home Page");
+    // sharepaste::printLine("[GET - Webpage] Sending Home Page");
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/index.html", "text/html");
-}
+} // getPasteWebpage
 
 void getAboutWebpage(const httplib::Request &req, httplib::Response &res)
 {
-    sharepaste::printLine("[GET - Webpage] Sending About Page");
+    // sharepaste::printLine("[GET - Webpage] Sending About Page");
 
     // serves script.js and style.css that are statically mounted at /www.
     res.set_file_content("./www/about.html", "text/html");
-}
+} // getAboutWebpage
 
 void getApiEmail(const httplib::Request &req, httplib::Response &res)
 {
-    sharepaste::printLine("[GET - Webpage] Sending About Page");
+    // sharepaste::printLine("[GET - Webpage] Sending About Page");
     // "admin@email"
     res.set_content(sharepaste::env::adminEmail, "text/plain");
     // res.set_content("admin@email", "text/plain");
-}
+} // getApiEmail
 
 void getDrop404Request(const httplib::Request &req, httplib::Response &res)
 {
     res.status = 404;
     res.set_header("Connection", "close");
-}
+} // getDrop404Request
 
 httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Request &req, httplib::Response &res)
 {
@@ -210,7 +210,7 @@ httplib::Server::HandlerResponse preRequestHandlerRateLimit(const httplib::Reque
     }
 
     return httplib::Server::HandlerResponse::Unhandled;
-}
+} // preRequestHandlerRateLimit
 
 void rateLimitCleanUpThread(std::chrono::seconds loopDuration)
 {
@@ -225,7 +225,7 @@ void rateLimitCleanUpThread(std::chrono::seconds loopDuration)
         }
         std::this_thread::sleep_for(std::max(loopDuration, std::chrono::seconds(1)));
     }
-}
+} // rateLimitCleanUpThread
 
 int main(int argc, char *argv[])
 {
