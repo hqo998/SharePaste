@@ -68,7 +68,7 @@ services:
       - /opt/sharepaste/data:/data
     environment:
       - SP_TrustedProxies=192.168.0.1, 192.168.0.2  # Change to your proxy IPs
-      - SP_RateLimit_TokenCapacity=10               # Set to 0 to disable rate limiting
+      - SP_RateLimit_TokenCapacity=20               # Set to 0 to disable rate limiting
       - SP_RateLimit_RefillRate=0.5                 # Refill tokens per second
       - SP_RateLimit_BlockAttemptWindow=5           # Minutes
       - SP_RateLimit_BlockMaxAttempts=10            # Count
@@ -114,7 +114,7 @@ services:
 | Variable | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `SP_TrustedProxies` | Array | - | Comma-separated list of trusted IPs (e.g. `192.168.0.1, 192.168.0.2`). When SharePaste is behind a reverse-proxy and to trust forwarded IP headers. |
-| `SP_RateLimit_TokenCapacity` | Integer | `10` | Maximum token bucket size. Set to `0` to disable rate limiting. |
+| `SP_RateLimit_TokenCapacity` | Integer | `20` | Maximum token bucket size. Set to `0` to disable rate limiting. |
 | `SP_RateLimit_RefillRate` | Double | `0.5` | Tokens added to bucket per second. |
 | `SP_RateLimit_BlockAttemptWindow` | Integer | `5` | Timeframe window (minutes) to track failed attempts. |
 | `SP_RateLimit_BlockMaxAttempts` | Integer | `10` | Max attempts allowed in the window before a block occurs. |
