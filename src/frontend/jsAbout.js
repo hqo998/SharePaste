@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const contactEmail = sessionStorage.getItem("ContactEmail");
 
-  console.log(contactEmail);
+  // console.log(contactEmail);
   if (contactEmail != null && contactEmail != "") {
     document.getElementById('ContactEmail').textContent = contactEmail;
     console.log("Found contact email stored.")

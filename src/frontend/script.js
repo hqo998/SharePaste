@@ -286,3 +286,33 @@ function toggleWrap() {
 
 wrapButton.addEventListener("click", toggleWrap);
 
+
+
+// max text limit size calibration with backend
+document.addEventListener('DOMContentLoaded', () => {
+  const textLimit = sessionStorage.getItem("TextLimit");
+  const pasteBox = document.getElementById('pasteBox');
+
+  if (textLimit) {
+    pasteBox.maxLength = textLimit;
+    console.log("Found stored limit:", textLimit);
+    return;
+  }
+
+  fetch(`/api/maxsize`)
+    .then(res => {
+      if (!res.ok) throw new Error('Limit not found');
+      return res.text();
+    })
+    .then(data => {
+      // make sure text is a number blah blah
+      const limit = parseInt(data, 10);
+      if (!isNaN(limit)) {
+        pasteBox.maxLength = limit;
+        sessionStorage.setItem("TextLimit", limit);
+      }
+    })
+    .catch(err => {
+      console.error("Fetch error:", err);
+    });
+});

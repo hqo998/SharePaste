@@ -32,7 +32,7 @@ namespace sharepaste
 
         const std::string adminEmail = fetchEnv("SP_AdminContactEmail"); // admin email to fill out about page
 
-        const int maxPasteSize = fetchEnvInt("SP_RateLimit_MaxPasteSize", 100000); // character limit for backend to disregard request.
+        const int maxPasteSize = fetchEnvInt("SP_RateLimit_MaxPasteSize", 1000000); // character limit for backend to disregard request.
     } // env
 
     managerSQL G_DATABASE;
@@ -177,6 +177,11 @@ void getApiEmail(const httplib::Request &req, httplib::Response &res)
     // res.set_content("admin@email", "text/plain");
 } // getApiEmail
 
+void getApiMaxPasteSize(const httplib::Request &req, httplib::Response &res)
+{
+    res.set_content(std::to_string(sharepaste::env::maxPasteSize), "text/plain");
+}
+
 void getDrop404Request(const httplib::Request &req, httplib::Response &res)
 {
     res.status = 404;
@@ -275,6 +280,10 @@ int main(int argc, char *argv[])
 
     sharepaste::printLine("[Register] Adding get /api/email handler");
     svr.Get("/api/email", getApiEmail);
+
+    sharepaste::printLine("[Register] Adding get /api/maxsize handler");
+    svr.Get("/api/maxsize", getApiMaxPasteSize);
+    
 
     // mounts www folder so js, html, css can be accessed via /www/something.sm without invidiual handlers
     auto ret = svr.set_mount_point("/www", "./www");
