@@ -111,6 +111,11 @@ void postRequestAPINewPaste(const httplib::Request &req, httplib::Response &res)
     sharepaste::printLine("[POST - API NEW] New Paste Entry - {}", uniqueCode);
 } // postRequestAPINewPaste
 
+void getHealthStatus(const httplib::Request &req, httplib::Response &res)
+{
+    res.set_content("Alive.", "text/plain");
+}
+
 void getRequestPasteData(const httplib::Request &req, httplib::Response &res)
 {
     // sharepaste::printLine("[GET - Paste Data] Recieved.");
@@ -299,6 +304,9 @@ int main(int argc, char *argv[])
     sharepaste::printLine("[Register] Common paths to 404.");
     svr.Get("/security.txt", getDrop404Request);
     svr.Get("/robots.txt", getDrop404Request);
+
+    sharepaste::printLine("[Register] Alive endpoint");
+    svr.Get("/status", getHealthStatus);
 
     sharepaste::printLine("[Register] Adding get /* handler");
     svr.Get(R"(.*)", getPasteWebpage);
