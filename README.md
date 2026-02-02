@@ -1,6 +1,7 @@
 <div align="center">
 
 # SharePaste
+
 <img src="./src/frontend/favicon/favicon.svg" width="350" />
 
 <!-- <p align="center">
@@ -19,6 +20,7 @@
 </div>
 
 # Deployed Example
+
 [26072004.xyz](https://26072004.xyz)
 
 # Features
@@ -33,16 +35,21 @@
 - **View Counts:** See how many views your pastes get.
 
 # Getting Started
+
 ## Docker
-```
+
+```docker
 docker run -d \
-	--name sharepaste \
-	-v /opt/sharepaste/data:/data \
-	-p 8080:8080 \
-	ghcr.io/hqo998/sharepaste:latest
+ --name sharepaste \
+ -v /opt/sharepaste/data:/data \
+ -p 8080:8080 \
+ ghcr.io/hqo998/sharepaste:latest
 ```
+
 ## Docker Compose
-### Quickstart.
+
+### Quickstart
+
 ```dockerfile
 services:
   sharepaste:
@@ -54,8 +61,11 @@ services:
     volumes:
       - /opt/sharepaste/data:/data
 ```
+
 ---
+
 ### Advanced Configuration
+
 ```dockerfile
 services:
   sharepaste:
@@ -78,8 +88,11 @@ services:
       - SP_AdminContactEmail=admin@email            # Displayed email for report contact.
       - SP_RateLimit_MaxPasteSize=100000            # Character/s Limit.
 ```
+
 ---
-### With Auto-Update.
+
+### With Auto-Update
+
 ```dockerfile
 services:
   sharepaste:
@@ -106,7 +119,13 @@ services:
       - WATCHTOWER_ENABLE_DIGEST=true
     command: --cleanup
 ```
+
+### Health Check
+
+You can do a health check by checking the reponse from (url)/status
+
 ## Binaries
+>
 > Not available yet. Please build from source with CMake or use Docker.
 
 ### Environment Variables
@@ -125,6 +144,7 @@ services:
 | `SP_RateLimit_MaxPasteSize` | Integer | `100000` | Max characters allowed per paste. Frontend limit 5 million in text box. |
 
 ## Dependancies
+
 - [cpp-httplib](https://github.com/yhirose/cpp-httplib)
 - [SQLite3](https://sqlite.org)
 - [Nlohmann JSON](https://github.com/nlohmann/json)
