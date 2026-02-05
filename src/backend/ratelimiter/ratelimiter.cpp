@@ -60,14 +60,13 @@ void IpRateLimiter::cleanAll(int cleanUpMinimumAge)
     std::unique_lock<std::shared_mutex> lock(bucketMapMutex);
 
     std::erase_if(ipBuckets, [&](auto &bucketMap)
-                {
+                  {
                     auto& [ip, bucket] = bucketMap;
                     bool shouldRemove = bucket->cleanUpIfOld(cleanUpMinimumAge); // clean up minutes
 
                     // Debug print
                     // std::cout << "Checking IP: " << ip << " | Should remove: " << std::boolalpha << shouldRemove << std::endl;
-                    return shouldRemove;
-                });
+                    return shouldRemove; });
 }
 
 int IpRateLimiter::size()
