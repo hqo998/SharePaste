@@ -143,6 +143,14 @@ You can do a health check by checking the reponse from (url)/status
 | `SP_AdminContactEmail` | String | `example@example` | Email to contact for user reports. Shows on the about page. |
 | `SP_RateLimit_MaxPasteSize` | Integer | `100000` | Max characters allowed per paste. Frontend limit 5 million in text box. |
 
+## Building from Source
+1. `git clone https://github.com/hqo998/SharePaste.git`
+2. `mkdir build & cd build`
+3. `cmake ..`
+4. `cmake --build .`
+5. Run exe in `./build/bin/(release/config)`
+6. Runs on localhost:8080 binds to 0.0.0.0
+
 ## Dependancies
 
 - [cpp-httplib](https://github.com/yhirose/cpp-httplib)
