@@ -11,7 +11,7 @@ jobs:
 
   docker-build-push:
 
-    runs-on: 	ubuntu-slim
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
