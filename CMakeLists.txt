@@ -18,12 +18,13 @@ set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_deps)
 set(EXTERNAL_DIR ${CMAKE_BINARY_DIR}/external)
 file(MAKE_DIRECTORY ${EXTERNAL_DIR})
 
-# Fetch cpp-httplib v0.28.0
-set(HTTPLIB_URL "https://raw.githubusercontent.com/yhirose/cpp-httplib/v0.32.0/httplib.h")
+# Fetch cpp-httplib
+set(HTTPLIB_VERSION "v0.34.0")
+set(HTTPLIB_URL "https://raw.githubusercontent.com/yhirose/cpp-httplib/${HTTPLIB_VERSION}/httplib.h")
 set(HTTPLIB_FILE "${EXTERNAL_DIR}/httplib.h")
 
 
-message(STATUS "Downloading cpp-httplib v0.32.0...")
+message(STATUS "Downloading cpp-httplib ${HTTPLIB_VERSION}...")
 file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
 
 set(HTTPLIB_URL "https://github.com/nlohmann/json/releases/download/v3.12.0/json.hpp")
