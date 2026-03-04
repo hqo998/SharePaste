@@ -19,7 +19,7 @@ set(EXTERNAL_DIR ${CMAKE_BINARY_DIR}/external)
 file(MAKE_DIRECTORY ${EXTERNAL_DIR})
 
 # Fetch cpp-httplib
-set(HTTPLIB_VERSION "v0.34.0")
+set(HTTPLIB_VERSION "v0.36.0")
 set(HTTPLIB_URL "https://raw.githubusercontent.com/yhirose/cpp-httplib/${HTTPLIB_VERSION}/httplib.h")
 set(HTTPLIB_FILE "${EXTERNAL_DIR}/httplib.h")
 
@@ -34,6 +34,7 @@ message(STATUS "Downloading json for cpp v3.12.0...")
 file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
 
 include_directories(${EXTERNAL_DIR})
+include_directories(${EXTERNAL_DIR}/nlohmannP)
 
 
 # sqlite3
