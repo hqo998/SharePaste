@@ -34,6 +34,7 @@ message(STATUS "Downloading json for cpp v3.12.0...")
 file(DOWNLOAD ${HTTPLIB_URL} ${HTTPLIB_FILE} SHOW_PROGRESS)
 
 include_directories(${EXTERNAL_DIR})
+include_directories(${EXTERNAL_DIR}/nlohmannP)
 
 
 # sqlite3
