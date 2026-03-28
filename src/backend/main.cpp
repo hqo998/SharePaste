@@ -48,11 +48,8 @@ void addSecurityHeaders(httplib::Response &res)
     res.set_header("X-Frame-Options", "DENY");
 
     res.set_header("X-Content-Type-Options", "nosniff");
-
     res.set_header("server", "server");
-
     res.set_header("Referrer-Policy", "strict-origin-when-cross-origin");
-
     res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none';");
     // block these
     res.set_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
