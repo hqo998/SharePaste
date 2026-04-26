@@ -35,7 +35,7 @@ function About() {
           </p>
         </div>
 
-        <div className="space-y-6 text-gray-700 dark:text-gray-300 text-base sm:text-lg leading-relaxed w-1/2">
+        <div className="space-y-6 text-gray-700 dark:text-gray-300 text-base text-center sm:text-lg leading-relaxed w-1/2">
           <p>
               SharePaste is a simple pastebin-style service built for speed, readability,
               and ease of sharing. Just paste and share your text!
