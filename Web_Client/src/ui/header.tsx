@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router-dom";
 
-export default function Header() {
+export default function Header({wrapFunc}: {wrapFunc?: () => void}) {
   const location = useLocation();
 
   const isAboutPage = location.pathname === "/about";
@@ -24,7 +24,12 @@ export default function Header() {
           >
             About
         </NavLink>
-        <button id="wrapButton" className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5">Wrap</button>
+        <button
+          id="wrapButton"
+          className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5" 
+          onClick={wrapFunc}>
+            Wrap
+        </button>
         <span id="viewCount" className="opacity-80 whitespace-nowrap font-sans text-[15px] font-bold text-white">👁 0</span>
       </div>
     </header>

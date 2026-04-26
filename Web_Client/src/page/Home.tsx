@@ -1,6 +1,7 @@
-import { useRef, useLayoutEffect, useCallback } from "react";
+import { useRef, useLayoutEffect, useCallback, useState } from "react";
 import Footer from "../ui/footer";
 import Header from "../ui/header";
+import { clsx } from "clsx";
 
 function getUsableWidth(el: HTMLElement) {
   const style = window.getComputedStyle(el);
@@ -20,6 +21,7 @@ function getCharWidth(font: string) {
 function Home() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const [wrapEnabled, setWrapEnabled] = useState(true);
 
   const updateLineNumbers = useCallback(() => {
     const textarea = textareaRef.current;
@@ -35,8 +37,6 @@ function Home() {
     const usableWidth = getUsableWidth(textarea);
 
     const charsPerLine = Math.max(1, Math.floor(usableWidth / charWidth));
-    const wrapEnabled = true; // Set depending on user configuration if added
-
     let lineNumber = 1;
 
     lines.forEach(line => {
@@ -48,7 +48,7 @@ function Home() {
     });
 
     lineNumbers.textContent = displayLines.join("\n");
-  }, []);
+  }, [wrapEnabled]);
 
   const handleScroll = useCallback(() => {
     if (textareaRef.current && lineNumbersRef.current) {
@@ -62,9 +62,14 @@ function Home() {
     return () => window.removeEventListener("resize", updateLineNumbers);
   }, [updateLineNumbers]);
 
+  const toggleWrap = () => {
+    console.log(wrapEnabled ? "Disabling wrap" : "Enabling wrap");
+    setWrapEnabled(prev => !prev);
+  };
+
   return (
     <div className="flex flex-col h-screen">
-      <Header />
+      <Header wrapFunc={toggleWrap}/>
 
       <div className="flex flex-1 w-full overflow-hidden">
         <div 
@@ -75,7 +80,13 @@ function Home() {
         </div>
         <textarea
           ref={textareaRef}
-          className="bg-[#1f1f22] text-[#d6d6d6] w-full flex-1 resize-none whitespace-pre-wrap break-words focus:outline-none font-mono text-[16px] p-2.5 leading-[1.4em] overflow-y-auto overflow-x-hidden"
+          wrap={wrapEnabled ? "soft" : "off"}
+          className={clsx("bg-[#1f1f22] text-[#d6d6d6] w-full flex-1 resize-none focus:outline-none font-mono text-[16px] p-2.5 leading-[1.4em] overflow-y-auto",
+            {
+              "overflow-x-auto whitespace-pre": !wrapEnabled,
+              "overflow-x-hidden whitespace-pre-wrap": wrapEnabled,
+            }
+          )}
           spellCheck={false}
           maxLength={5000000}
           onChange={updateLineNumbers}
