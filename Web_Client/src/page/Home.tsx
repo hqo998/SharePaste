@@ -75,9 +75,9 @@ function Home() {
   };
 
   // Share Link Button
-  const handleShareLink = () => {
+  // const handlesharelink = () => {
 
-  };
+  // };
 
   // New Button
   // const handleNew = () => {
