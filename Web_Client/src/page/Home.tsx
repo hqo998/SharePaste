@@ -80,37 +80,44 @@ function Home() {
   };
 
   // New Button
+  // const handleNew = () => {
+  //   if (textareaRef.current) {
+  //     textareaRef.current.value = "";
+  //     updateLineNumbers();
+  //   }
+  // };
 
+  
   // Check for Paste on load
 
   // Get Max Paste Size from server on load
-  const getMaxPasteSize = async () => {
-    const textLimit = sessionStorage.getItem("textLimit");
-    const pasteBox = textareaRef.current!;
+  // const getMaxPasteSize = async () => {
+  //   const textLimit = sessionStorage.getItem("textLimit");
+  //   const pasteBox = textareaRef.current!;
 
-    if (textLimit) {
-      const limit = parseInt(textLimit, 10);
-      pasteBox.maxLength = limit;
-      console.log("Max paste size set from sessionStorage:", textLimit);
-      return;
-    }
+  //   if (textLimit) {
+  //     const limit = parseInt(textLimit, 10);
+  //     pasteBox.maxLength = limit;
+  //     console.log("Max paste size set from sessionStorage:", textLimit);
+  //     return;
+  //   }
 
-    try {
-      const response = await fetch("/api/maxsize");
-      const maxPasteSize = await response.text();
-      sessionStorage.setItem("textLimit", maxPasteSize);
-      pasteBox!.maxLength = parseInt(maxPasteSize, 10);
+  //   try {
+  //     const response = await fetch("/api/maxsize");
+  //     const maxPasteSize = await response.text();
+  //     sessionStorage.setItem("textLimit", maxPasteSize);
+  //     pasteBox!.maxLength = parseInt(maxPasteSize, 10);
     
-      console.log("Max paste size set from server:", maxPasteSize);
+  //     console.log("Max paste size set from server:", maxPasteSize);
     
-    } catch (error) {
-      console.error("Failed to fetch max paste size:", error);
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Failed to fetch max paste size:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    getMaxPasteSize();
-  }, []);
+  // useEffect(() => {
+  //   getMaxPasteSize();
+  // }, []);
 
   // Tab Indent support
 
