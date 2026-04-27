@@ -69,12 +69,12 @@ function Home() {
     setWrapEnabled(prev => !prev);
   };
 
-  // Share Button
-  const handleShare = () => {
+  // TODO: Share Button
+  // const handleShare = () => {
 
-  };
+  // };
 
-  // Share Link Button
+  // TODO: Share Link Button
   // const handlesharelink = () => {
 
   // };
@@ -88,9 +88,22 @@ function Home() {
   // };
 
   
-  // Check for Paste on load
+  // TODO: Check for Paste on load
+  const checkForPaste = () => {
 
-  // Get Max Paste Size from server on load
+
+  // TODO: New Button and pass to func to button
+  const handleNew = () => {
+    if (textareaRef.current) {
+      textareaRef.current.value = "";
+      updateLineNumbers();
+    }
+  };
+
+  // TODO: Sharebutton
+
+
+  // TODO: Get Max Paste Size from server on load
   // const getMaxPasteSize = async () => {
   //   const textLimit = sessionStorage.getItem("textLimit");
   //   const pasteBox = textareaRef.current!;
@@ -119,7 +132,7 @@ function Home() {
   //   getMaxPasteSize();
   // }, []);
 
-  // Tab Indent support
+  // TODO: Tab Indent support
 
   return (
     <div className="flex flex-col h-screen">
