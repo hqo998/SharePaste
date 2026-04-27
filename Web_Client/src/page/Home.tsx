@@ -89,8 +89,43 @@ function Home() {
 
   
   // TODO: Check for Paste on load
-  const checkForPaste = () => {
+  useEffect(() => {
+    const checkForPaste = async () => {
+      const uniqueCode = window.location.pathname.slice(1);
+      const storageData = sessionStorage.getItem(uniqueCode);
 
+      if (!uniqueCode || !storageData) return;
+
+      if (storageData) {
+        const pasteDataObj = JSON.parse(storageData);
+        textareaRef.current!.value = pasteDataObj.pasteBody;
+        updateLineNumbers();
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/find?code=${encodeURIComponent(uniqueCode)}`);
+        if (!response.ok) {
+          console.error("Failed to fetch paste data:", response.statusText);
+          return;
+        }
+        const pasteData = await response.json();
+        textareaRef.current!.value = pasteData.pasteBody;
+
+        const localDataObj = {
+          pasteBody: pasteData.pasteBody,
+          viewCount: pasteData.viewCount || 0,
+        };
+        sessionStorage.setItem(uniqueCode, JSON.stringify(localDataObj) );
+        } catch (error) {
+        console.error("Error fetching paste data:", error);
+      } finally {
+        updateLineNumbers();
+      }
+    };
+
+    checkForPaste();
+  }, []);
 
   // TODO: New Button and pass to func to button
   const handleNew = () => {
@@ -101,6 +136,7 @@ function Home() {
   };
 
   // TODO: Sharebutton
+
 
 
   // TODO: Get Max Paste Size from server on load
