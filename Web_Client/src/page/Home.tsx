@@ -20,8 +20,13 @@ function getCharWidth(font: string) {
 
 function Home() {
 
-  // line numbers and text wrapping
+  
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [textContent, setTextContent] = useState("");
+  const shareLinkRef = useRef<HTMLInputElement>(null);
+
+
+  // line numbers and text wrapping
   const lineNumbersRef = useRef<HTMLDivElement>(null);
   const [wrapEnabled, setWrapEnabled] = useState(true);
 
@@ -136,7 +141,39 @@ function Home() {
   };
 
   // TODO: Sharebutton
+  const handleShare = async () => {
+    if (!textareaRef.current) return;
+    const pasteContent = textareaRef.current.value;
 
+    if (!pasteContent.trim()) return; // no empty pastes
+
+    if (pasteContent == textContent) return; // no reshares without changes
+
+    const origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+
+    const response = await fetch("/api/new",
+      {
+        method: "POST",
+        headers:
+      {
+        "Content-type": "application/json; charset=UTF-8"
+      },
+        body: JSON.stringify({ pasteBody: pasteContent })
+      })
+
+    if (!response.ok) {
+      console.error("Failed to create new paste:", response.statusText);
+      return;
+    }
+
+    const data = await response.text();
+
+    if (shareLinkRef.current) {
+      shareLinkRef.current.value = `${origin}/${data}`;
+      setTextContent(pasteContent);
+    }
+
+  }
 
 
   // TODO: Get Max Paste Size from server on load
@@ -172,7 +209,7 @@ function Home() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header wrapFunc={toggleWrap}/>
+      <Header wrapFunc={toggleWrap} newHandle={handleNew} shareHandle={handleShare} />
 
       <div className="flex flex-1 w-full overflow-hidden">
         <div 
