@@ -50,7 +50,7 @@ void addSecurityHeaders(httplib::Response &res)
     res.set_header("X-Content-Type-Options", "nosniff");
     res.set_header("server", "server");
     res.set_header("Referrer-Policy", "strict-origin-when-cross-origin");
-    res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none';");
+    res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none';");
     // block these
     res.set_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 } // addSecurityHeaders
@@ -160,7 +160,7 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
     // sharepaste::printLine("[GET - Webpage] Sending Home Page");
 
     // serves script.js and style.css that are statically mounted at /www.
-    res.set_file_content("./www/index.html", "text/html");
+    res.set_file_content("./index.html", "text/html");
 } // getPasteWebpage
 
 void getAboutWebpage(const httplib::Request &req, httplib::Response &res)
@@ -168,7 +168,7 @@ void getAboutWebpage(const httplib::Request &req, httplib::Response &res)
     // sharepaste::printLine("[GET - Webpage] Sending About Page");
 
     // serves script.js and style.css that are statically mounted at /www.
-    res.set_file_content("./www/about.html", "text/html");
+    res.set_file_content("./index.html", "text/html");
 } // getAboutWebpage
 
 void getApiEmail(const httplib::Request &req, httplib::Response &res)

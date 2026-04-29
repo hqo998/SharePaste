@@ -94,8 +94,8 @@ endif()
 #copy frontend to build folder regardless of configuration
 add_custom_target(copy_frontend ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/src/frontend
-        $<TARGET_FILE_DIR:sharepaste>/www
+        ${CMAKE_SOURCE_DIR}/Web_Client/dist
+        $<TARGET_FILE_DIR:sharepaste>/
 )
 
 add_dependencies(copy_frontend sharepaste)
