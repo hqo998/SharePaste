@@ -99,6 +99,7 @@ function Home() {
         textareaRef.current!.value = pasteDataObj.pasteBody;
         viewCountRef.current!.textContent = pasteDataObj.viewCount ? `👁 ${pasteDataObj.viewCount.toString()}` : "👁 0";
         shareLinkRef.current!.value = document.URL;
+        setTextContent(pasteDataObj.pasteBody);
 
         updateLineNumbers();
         return;
@@ -116,7 +117,8 @@ function Home() {
         textareaRef.current!.value = pasteData.pasteBody;
         viewCountRef.current!.textContent = pasteData.viewCount ? `👁 ${pasteData.viewCount.toString()}` : "👁 0";
         shareLinkRef.current!.value = document.URL;
-
+        setTextContent(pasteData.pasteBody);
+         
         const localDataObj = {
           pasteBody: pasteData.pasteBody,
           viewCount: pasteData.viewCount || 0,
