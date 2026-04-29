@@ -17,10 +17,10 @@ function About() {
   }, []);
 
   return (
-    <>
+    <div className="min-h-screen flex flex-col bg-[#292929]">
       <Header />
 
-      <div className="flex flex-col bg-[#292929] w-full h-full items-center justify-center">      
+      <div className="flex flex-1 flex-col w-full h-full items-center justify-center">      
         <div className="max-w-3xl mx-auto px-6 pt-16 flex flex-col items-center w-1/2">
           <a href="/" title="Home" className="cursor-default mb-6 block">
             <img src="/www/favicon.svg" alt="SharePaste Logo" className="w-24 h-24 sm:w-32 sm:h-32 object-contain cursor-default transition-transform hover:scale-105"></img>
@@ -94,7 +94,7 @@ function About() {
         </div>
 
       <Footer />
-    </>
+    </div>
   );
 }
 

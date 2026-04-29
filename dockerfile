@@ -18,29 +18,25 @@ WORKDIR /app
 COPY src ./src
 COPY CMakeLists.txt .
 
+# TODO temp : remove old frontend files to avoid confusion. Once react is fully integrated remove this.
+RUN rm -rf /src/frontend
+
 # Create build directory
 RUN mkdir build
-WORKDIR /app/build
-
-# Compile the C++ code statically to ensure it doesn't depend on runtime libraries
-
-# RUN cmake -DCMAKE_BUILD_TYPE=Release .. 
-#     && cmake --build . -- -j$(nproc)
-
-RUN cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. \
-    && cmake --build . -- -j$(nproc)
-
-# Logging to make sure build files exist
-RUN ls -l /app/build
-RUN ls -l /app/build/bin
-RUN ls -l /app/build/bin/www
 
 WORKDIR /app
 COPY Web_Client ./Web_Client
 WORKDIR /app/Web_Client
 
 # Install dependencies and build the front end
-RUN npm install && npm run build
+RUN npm install
+
+RUN npm run build
+
+# Compile the C++ code statically to ensure it doesn't depend on runtime libraries
+WORKDIR /app/build
+RUN cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. \
+    && cmake --build . -- -j$(nproc)
 
 RUN ls -l /app/Web_Client/dist
 
