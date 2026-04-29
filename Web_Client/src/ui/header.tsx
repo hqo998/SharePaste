@@ -27,7 +27,7 @@ export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, 
         }, 500);
 
         shareLinkRef.current.disabled = false; // Re-enable the input
-        
+
       } catch (error) {
         console.error("Failed to copy share link:", error);
       }

@@ -27,8 +27,8 @@ function Home() {
   const [maxPasteSize, setMaxPasteSize] = useState(5000000);
 
   // header references
-  const shareLinkRef = useRef<HTMLInputElement>(null);
-  const viewCountRef = useRef<HTMLSpanElement>(null);
+  const shareLinkRef = useRef<HTMLInputElement>(null!);
+  const viewCountRef = useRef<HTMLSpanElement>(null!);
 
   // line numbers and text wrapping
   const lineNumbersRef = useRef<HTMLDivElement>(null);
