@@ -2,6 +2,7 @@ import { useRef, useLayoutEffect, useCallback, useState, useEffect } from "react
 import Footer from "../ui/footer";
 import Header from "../ui/header";
 import { clsx } from "clsx";
+import { redirect } from "react-router-dom";
 
 function getUsableWidth(el: HTMLElement) {
   const style = window.getComputedStyle(el);
@@ -23,8 +24,11 @@ function Home() {
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [textContent, setTextContent] = useState("");
-  const shareLinkRef = useRef<HTMLInputElement>(null);
+  const [maxPasteSize, setMaxPasteSize] = useState(5000000);
 
+  // header references
+  const shareLinkRef = useRef<HTMLInputElement>(null);
+  const viewCountRef = useRef<HTMLSpanElement>(null);
 
   // line numbers and text wrapping
   const lineNumbersRef = useRef<HTMLDivElement>(null);
@@ -74,23 +78,9 @@ function Home() {
     setWrapEnabled(prev => !prev);
   };
 
-  // TODO: Share Button
-  // const handleShare = () => {
 
-  // };
 
-  // TODO: Share Link Button
-  // const handlesharelink = () => {
-
-  // };
-
-  // New Button
-  // const handleNew = () => {
-  //   if (textareaRef.current) {
-  //     textareaRef.current.value = "";
-  //     updateLineNumbers();
-  //   }
-  // };
+  
 
   
   // TODO: Check for Paste on load
@@ -138,6 +128,14 @@ function Home() {
       textareaRef.current.value = "";
       updateLineNumbers();
     }
+
+    if (shareLinkRef.current) {
+      shareLinkRef.current.value = "";
+    }
+
+    setTextContent(""); // wipe prev tracker to clear.
+    
+    redirect("/"); // Clear URL and state for new paste
   };
 
   // TODO: Sharebutton
@@ -148,6 +146,11 @@ function Home() {
     if (!pasteContent.trim()) return; // no empty pastes
 
     if (pasteContent == textContent) return; // no reshares without changes
+
+    if (pasteContent.length > maxPasteSize) {
+      alert(`Paste exceeds maximum size of ${maxPasteSize} characters.`);
+      return;
+    }
 
     const origin = window.location.protocol + '//' + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
 
@@ -163,6 +166,9 @@ function Home() {
 
     if (!response.ok) {
       console.error("Failed to create new paste:", response.statusText);
+      if (shareLinkRef.current) {
+        shareLinkRef.current.value = "Error - please try again";
+      }
       return;
     }
 
@@ -175,41 +181,43 @@ function Home() {
 
   }
 
+  // TODO: Share Link Button
+  const handleShareLink = () => {
+
+  };
+
 
   // TODO: Get Max Paste Size from server on load
-  // const getMaxPasteSize = async () => {
-  //   const textLimit = sessionStorage.getItem("textLimit");
-  //   const pasteBox = textareaRef.current!;
+  useEffect(() => {
+    const getMaxPasteSize = async () => {
 
-  //   if (textLimit) {
-  //     const limit = parseInt(textLimit, 10);
-  //     pasteBox.maxLength = limit;
-  //     console.log("Max paste size set from sessionStorage:", textLimit);
-  //     return;
-  //   }
+    try {
+      const response = await fetch("/api/maxsize");
+      const maxLimit = await response.text();
 
-  //   try {
-  //     const response = await fetch("/api/maxsize");
-  //     const maxPasteSize = await response.text();
-  //     sessionStorage.setItem("textLimit", maxPasteSize);
-  //     pasteBox!.maxLength = parseInt(maxPasteSize, 10);
+      const parsedLimit = parseInt(maxLimit, 10);
+      if (isNaN(parsedLimit) || parsedLimit <= 0) {
+        console.warn("Invalid max paste size received from server, using default:", maxLimit);
+        return;
+      }
+
+      setMaxPasteSize(parsedLimit);
     
-  //     console.log("Max paste size set from server:", maxPasteSize);
+      console.log("Max paste size set from server:", maxLimit);
     
-  //   } catch (error) {
-  //     console.error("Failed to fetch max paste size:", error);
-  //   }
-  // };
+    } catch (error) {
+      console.error("Failed to fetch max paste size:", error);
+    }
+    };
 
-  // useEffect(() => {
-  //   getMaxPasteSize();
-  // }, []);
+    getMaxPasteSize();
+  }, []);
 
   // TODO: Tab Indent support
 
   return (
     <div className="flex flex-col h-screen">
-      <Header wrapFunc={toggleWrap} newHandle={handleNew} shareHandle={handleShare} />
+      <Header wrapFunc={toggleWrap} newHandle={handleNew} shareHandle={handleShare} viewCountRef={viewCountRef} shareLinkRef={shareLinkRef} />
 
       <div className="flex flex-1 w-full overflow-hidden">
         <div 
@@ -228,7 +236,7 @@ function Home() {
             }
           )}
           spellCheck={false}
-          maxLength={5000000}
+          maxLength={maxPasteSize}
           onChange={updateLineNumbers}
           onScroll={handleScroll}
         ></textarea>

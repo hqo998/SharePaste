@@ -4,10 +4,12 @@ interface HeaderProps {
   wrapFunc?: () => void;
   newHandle?: () => void;
   shareHandle?: () => void;
+  viewCountRef?: React.RefObject<HTMLSpanElement>;
+  shareLinkRef?: React.RefObject<HTMLInputElement>;
 }
 
 
-export default function Header({wrapFunc, newHandle, shareHandle}: HeaderProps) {
+export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, shareLinkRef}: HeaderProps) {
   const location = useLocation();
 
   const isAboutPage = location.pathname === "/about";
@@ -19,14 +21,22 @@ export default function Header({wrapFunc, newHandle, shareHandle}: HeaderProps) 
       <NavLink to="/" className="flex items-center justify-center h-6 no-underline" title="Home">
         <img src="/www/favicon.svg" alt="Home" className="h-[130%] w-auto block cursor-pointer" />
       </NavLink>
+      
       <button id="newButton" className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5" onClick={newHandle}>
         New
       </button>
+
       <button id="shareButton" className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5" onClick={shareHandle}>
         Share
       </button>
 
-      <input id="shareLink" className="bg-[#323232] text-[#d6d6d6] border border-[#444444] px-2.5 py-1.5 rounded w-75 font-mono focus:outline-none read-only:cursor-default" type="text" readOnly />
+      <input
+        id="shareLink"
+        className="bg-[#323232] text-[#d6d6d6] border border-[#444444] px-2.5 py-1.5 rounded w-75 font-mono focus:outline-none read-only:cursor-default"
+        type="text"
+        readOnly
+        ref={shareLinkRef}
+      />
 
       <div className="ml-auto flex gap-2.5 items-center">
         <NavLink
@@ -35,13 +45,21 @@ export default function Header({wrapFunc, newHandle, shareHandle}: HeaderProps) 
           >
             About
         </NavLink>
+
         <button
           id="wrapButton"
           className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5" 
           onClick={wrapFunc}>
             Wrap
         </button>
-        <span id="viewCount" className="opacity-80 whitespace-nowrap font-sans text-[15px] font-bold text-white">👁 0</span>
+
+        <span
+          id="viewCount"
+          className="opacity-80 whitespace-nowrap font-sans text-[15px] font-bold text-white"
+          ref={viewCountRef}
+          >
+          👁 0
+        </span>
       </div>
     </header>
     );
