@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     cmake \
     ninja-build
 
+# installl npm for building the front end
+RUN apt-get install -y npm && apt-get clean
+
 # Set the working directory
 WORKDIR /app
 
@@ -32,6 +35,17 @@ RUN ls -l /app/build
 RUN ls -l /app/build/bin
 RUN ls -l /app/build/bin/www
 
+WORKDIR /app
+COPY Web_Client ./Web_Client
+WORKDIR /app/Web_Client
+
+# Install dependencies and build the front end
+RUN npm install && npm run build
+
+RUN ls -l /app/Web_Client/dist
+
+# =====================================
+
 # Stage 2: Runtime stage
 FROM scratch
 
@@ -39,12 +53,12 @@ FROM scratch
 COPY --from=build /app/build/bin/sharepaste /sharepaste
 
 # Copy the front end files
-COPY --from=build /app/build/bin/www /www
+COPY --from=build /app/Web_Client/dist /
 
 # Expose the port on which the API will listen
 EXPOSE 8080
 
-# MAake sure sharepaste exists
+# Make sure sharepaste exists
 RUN ["/sharepaste", "--test"]
 
 
