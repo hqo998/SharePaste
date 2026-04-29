@@ -181,11 +181,6 @@ function Home() {
 
   }
 
-  // TODO: Share Link Button
-  const handleShareLink = () => {
-
-  };
-
 
   // TODO: Get Max Paste Size from server on load
   useEffect(() => {

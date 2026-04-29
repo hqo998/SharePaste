@@ -11,8 +11,29 @@ interface HeaderProps {
 
 export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, shareLinkRef}: HeaderProps) {
   const location = useLocation();
-
   const isAboutPage = location.pathname === "/about";
+
+  const handleShareLink = async () => {
+    if (shareLinkRef && shareLinkRef.current && shareLinkRef.current.value) {
+      try {
+        shareLinkRef.current.disabled = true; // Disable the input to prevent multiple clicks
+        await navigator.clipboard.writeText(shareLinkRef.current.value);
+        const old = shareLinkRef.current.value;
+        shareLinkRef.current.value = "Copied!";
+        setTimeout(() => {
+          if (shareLinkRef.current) {
+            shareLinkRef.current.value = old;
+          }
+        }, 500);
+
+        shareLinkRef.current.disabled = false; // Re-enable the input
+        
+      } catch (error) {
+        console.error("Failed to copy share link:", error);
+      }
+    }
+  };
+
 
   if (!isAboutPage) {
     // Home page header and everything else.
@@ -21,7 +42,7 @@ export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, 
       <NavLink to="/" className="flex items-center justify-center h-6 no-underline" title="Home">
         <img src="/www/favicon.svg" alt="Home" className="h-[130%] w-auto block cursor-pointer" />
       </NavLink>
-      
+
       <button id="newButton" className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5" onClick={newHandle}>
         New
       </button>
@@ -32,10 +53,11 @@ export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, 
 
       <input
         id="shareLink"
-        className="bg-[#323232] text-[#d6d6d6] border border-[#444444] px-2.5 py-1.5 rounded w-75 font-mono focus:outline-none read-only:cursor-default"
+        className="bg-[#323232] text-[#d6d6d6] border border-[#444444] px-2.5 py-1.5 rounded w-75 font-mono focus:outline-none read-only:cursor-default hover:cursor-text active:border-white transition-all duration-100"
         type="text"
         readOnly
         ref={shareLinkRef}
+        onClick={handleShareLink}
       />
 
       <div className="ml-auto flex gap-2.5 items-center">
