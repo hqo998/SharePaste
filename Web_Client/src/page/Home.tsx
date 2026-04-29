@@ -86,14 +86,20 @@ function Home() {
   // TODO: Check for Paste on load
   useEffect(() => {
     const checkForPaste = async () => {
+      // console.log("Checking for existing paste in URL...");
+
       const uniqueCode = window.location.pathname.slice(1);
       const storageData = sessionStorage.getItem(uniqueCode);
 
-      if (!uniqueCode || !storageData) return;
+      if (!uniqueCode) return;
 
       if (storageData) {
+        // console.log("Found session storage data for code:", uniqueCode);
         const pasteDataObj = JSON.parse(storageData);
         textareaRef.current!.value = pasteDataObj.pasteBody;
+        viewCountRef.current!.textContent = pasteDataObj.viewCount ? `👁 ${pasteDataObj.viewCount.toString()}` : "👁 0";
+        shareLinkRef.current!.value = document.URL;
+
         updateLineNumbers();
         return;
       }
@@ -105,22 +111,28 @@ function Home() {
           return;
         }
         const pasteData = await response.json();
+
+        // console.log("Fetched paste data from server for code:", uniqueCode, pasteData);
         textareaRef.current!.value = pasteData.pasteBody;
+        viewCountRef.current!.textContent = pasteData.viewCount ? `👁 ${pasteData.viewCount.toString()}` : "👁 0";
+        shareLinkRef.current!.value = document.URL;
 
         const localDataObj = {
           pasteBody: pasteData.pasteBody,
           viewCount: pasteData.viewCount || 0,
         };
         sessionStorage.setItem(uniqueCode, JSON.stringify(localDataObj) );
-        } catch (error) {
+
+      } catch (error) {
         console.error("Error fetching paste data:", error);
+      
       } finally {
         updateLineNumbers();
       }
     };
 
     checkForPaste();
-  }, []);
+  }, [updateLineNumbers]);
 
   // TODO: New Button and pass to func to button
   const handleNew = () => {
@@ -198,7 +210,7 @@ function Home() {
 
       setMaxPasteSize(parsedLimit);
     
-      console.log("Max paste size set from server:", maxLimit);
+      // console.log("Max paste size set from server:", maxLimit);
     
     } catch (error) {
       console.error("Failed to fetch max paste size:", error);

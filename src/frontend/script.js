@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (storageData) { // use locally found data instead.
     console.log("Local cache found for unique code.");
     const pasteData = JSON.parse(storageData);
-    document.getElementById("viewCount").textContent = "👁 " + pasteData.viewCount;
+    document.getElementById("viewCount").textContent = "y " + pasteData.viewCount;
     document.getElementById('pasteBox').textContent = pasteData.pasteBody;
     document.getElementById("shareLink").value = document.URL;
     updateLineNumbers();
