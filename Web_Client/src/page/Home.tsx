@@ -79,9 +79,21 @@ function Home() {
   };
 
 
+  // TODO: New Button and pass to func to button
+  const handleNew = () => {
+    if (textareaRef && textareaRef.current) {
+      textareaRef.current.value = "";
+      updateLineNumbers();
+    }
 
-  
+    if (shareLinkRef && shareLinkRef.current) {
+      shareLinkRef.current.value = "";
+    }
 
+    setTextContent(""); // wipe prev tracker to clear.
+    
+    redirect("/"); // Clear URL and state for new paste
+  };
   
   // TODO: Check for Paste on load
   useEffect(() => {
@@ -135,22 +147,6 @@ function Home() {
 
     checkForPaste();
   }, [updateLineNumbers]);
-
-  // TODO: New Button and pass to func to button
-  const handleNew = () => {
-    if (textareaRef.current) {
-      textareaRef.current.value = "";
-      updateLineNumbers();
-    }
-
-    if (shareLinkRef.current) {
-      shareLinkRef.current.value = "";
-    }
-
-    setTextContent(""); // wipe prev tracker to clear.
-    
-    redirect("/"); // Clear URL and state for new paste
-  };
 
   // TODO: Sharebutton
   const handleShare = async () => {
@@ -212,8 +208,6 @@ function Home() {
 
       setMaxPasteSize(parsedLimit);
     
-      // console.log("Max paste size set from server:", maxLimit);
-    
     } catch (error) {
       console.error("Failed to fetch max paste size:", error);
     }
@@ -224,6 +218,9 @@ function Home() {
 
   // TODO: Tab Indent support
 
+
+
+  
   return (
     <div className="flex flex-col h-screen">
       <Header wrapFunc={toggleWrap} newHandle={handleNew} shareHandle={handleShare} viewCountRef={viewCountRef} shareLinkRef={shareLinkRef} />

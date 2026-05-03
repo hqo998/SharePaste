@@ -34,7 +34,6 @@ export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, 
     }
   };
 
-
   if (!isAboutPage) {
     // Home page header and everything else.
     return (
@@ -43,7 +42,11 @@ export default function Header({wrapFunc, newHandle, shareHandle, viewCountRef, 
         <img src="/www/favicon.svg" alt="Home" className="h-[130%] w-auto block cursor-pointer" />
       </NavLink>
 
-      <button id="newButton" className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5" onClick={newHandle}>
+      <button
+        id="newButton"
+        className="cursor-pointer bg-[#323232] rounded-md border border-[#444444] text-[#d6d6d6] font-sans text-[15px] font-bold px-6 py-1.5 no-underline transition-all duration-200 ease-in-out hover:bg-[#3c3c3c] active:relative active:top-px shadow-[inset_0_1px_0_0_#323232] max-sm:min-h-7.5"
+        onClick={newHandle}
+      >
         New
       </button>
 
