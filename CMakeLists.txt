@@ -19,7 +19,7 @@ set(EXTERNAL_DIR ${CMAKE_BINARY_DIR}/external)
 file(MAKE_DIRECTORY ${EXTERNAL_DIR})
 
 # Fetch cpp-httplib
-set(HTTPLIB_VERSION "v0.43.3")
+set(HTTPLIB_VERSION "v0.45.0")
 set(HTTPLIB_URL "https://raw.githubusercontent.com/yhirose/cpp-httplib/${HTTPLIB_VERSION}/httplib.h")
 set(HTTPLIB_FILE "${EXTERNAL_DIR}/httplib.h")
 
