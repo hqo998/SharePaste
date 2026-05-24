@@ -90,6 +90,10 @@ function Home() {
       shareLinkRef.current.value = "";
     }
 
+    if (viewCountRef && viewCountRef.current) {
+       viewCountRef.current.textContent = "👁";
+    }
+
     setTextContent(""); // wipe prev tracker to clear.
     
     redirect("/"); // Clear URL and state for new paste
