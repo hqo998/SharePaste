@@ -29,7 +29,7 @@ COPY Web_Client ./Web_Client
 WORKDIR /app/Web_Client
 
 # Install dependencies and build the front end
-RUN npm install
+RUN npm ci
 
 RUN npm run build
 
