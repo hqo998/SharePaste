@@ -9,7 +9,17 @@ function About() {
     // Fetch contact email from the server
     const fetchContactEmail = async () => {
       const res = await fetch("/api/email");
+      if (!res.ok) {
+        console.error("Failed to fetch contact email:", res.statusText);
+        return;
+      }
       const data = await res.text();
+      
+      if ("<!doctype html>" === data.substring(0, 15)) {
+        console.error("Failed to fetch contact email: Received HTML instead of text");
+        return;
+      }
+      
       setContactEmail(data);
     };
 
