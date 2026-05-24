@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
      branches: [ "main" ]
-  pull_request:
-     branches: [ "main" ]
+  # pull_request: # why i had this nightmare of a security flaw here is beyond me
+  #    branches: [ "main" ]
 
 jobs:
 
