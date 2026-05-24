@@ -2,7 +2,7 @@ import { useRef, useLayoutEffect, useCallback, useState, useEffect } from "react
 import Footer from "../ui/footer";
 import Header from "../ui/header";
 import { clsx } from "clsx";
-import { redirect } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 function getUsableWidth(el: HTMLElement) {
   const style = window.getComputedStyle(el);
@@ -20,7 +20,7 @@ function getCharWidth(font: string) {
 }
 
 function Home() {
-
+  // const navigate = useNavigate();
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [textContent, setTextContent] = useState("");
@@ -96,7 +96,8 @@ function Home() {
 
     setTextContent(""); // wipe prev tracker to clear.
     
-    redirect("/"); // Clear URL and state for new paste
+    // redirect("/"); // Clear URL and state for new paste
+    window.history.pushState({}, "", "/");
   };
   
   // TODO: Check for Paste on load
@@ -192,6 +193,9 @@ function Home() {
       shareLinkRef.current.value = `${origin}/${data}`;
       setTextContent(pasteContent);
     }
+
+    // navigate("/" + data);
+    window.history.pushState({}, "", data);
 
   }
 
