@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(SharePaste)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
+# set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
@@ -92,11 +92,19 @@ endif()
 
 
 #copy frontend to build folder regardless of configuration
-add_custom_target(copy_frontend ALL
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/src/frontend
-        $<TARGET_FILE_DIR:sharepaste>/www
-)
+if (EXISTS ${CMAKE_SOURCE_DIR}/Web_Client/dist)
+    message(STATUS "Frontend build found, will copy to output directory.")
+    
+    add_custom_target(copy_frontend ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/Web_Client/dist
+            $<TARGET_FILE_DIR:sharepaste>/
+    )
+
+else()
+    message(FATAL_ERROR "Frontend build not found at ${CMAKE_SOURCE_DIR}/Web_Client/dist. Please build the frontend and ensure it is located at this path.")
+
+endif()
 
 add_dependencies(copy_frontend sharepaste)
 

@@ -160,7 +160,7 @@ void getPasteWebpage(const httplib::Request &req, httplib::Response &res)
     // sharepaste::printLine("[GET - Webpage] Sending Home Page");
 
     // serves script.js and style.css that are statically mounted at /www.
-    res.set_file_content("./www/index.html", "text/html");
+    res.set_file_content("./index.html", "text/html");
 } // getPasteWebpage
 
 void getAboutWebpage(const httplib::Request &req, httplib::Response &res)
@@ -168,7 +168,7 @@ void getAboutWebpage(const httplib::Request &req, httplib::Response &res)
     // sharepaste::printLine("[GET - Webpage] Sending About Page");
 
     // serves script.js and style.css that are statically mounted at /www.
-    res.set_file_content("./www/about.html", "text/html");
+    res.set_file_content("./index.html", "text/html");
 } // getAboutWebpage
 
 void getApiEmail(const httplib::Request &req, httplib::Response &res)
@@ -292,6 +292,13 @@ int main(int argc, char *argv[])
     if (!ret)
     {
         sharepaste::printLine("Cant mount /www to ./www");
+        exit(-1);
+    }
+ 
+    auto rep = svr.set_mount_point("/assets", "./assets");
+    if (!rep)
+    {
+        sharepaste::printLine("Cant mount /assets to ./assets");
         exit(-1);
     }
 

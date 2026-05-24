@@ -8,6 +8,9 @@ RUN apt-get update && apt-get install -y \
     cmake \
     ninja-build
 
+# installl npm for building the front end
+RUN apt-get install -y npm && apt-get clean
+
 # Set the working directory
 WORKDIR /app
 
@@ -17,20 +20,24 @@ COPY CMakeLists.txt .
 
 # Create build directory
 RUN mkdir build
-WORKDIR /app/build
+
+WORKDIR /app
+COPY Web_Client ./Web_Client
+WORKDIR /app/Web_Client
+
+# Install dependencies and build the front end
+RUN npm ci
+
+RUN npm run build
 
 # Compile the C++ code statically to ensure it doesn't depend on runtime libraries
-
-# RUN cmake -DCMAKE_BUILD_TYPE=Release .. 
-#     && cmake --build . -- -j$(nproc)
-
+WORKDIR /app/build
 RUN cmake -G Ninja -DCMAKE_BUILD_TYPE=Release .. \
     && cmake --build . -- -j$(nproc)
 
-# Logging to make sure build files exist
-RUN ls -l /app/build
-RUN ls -l /app/build/bin
-RUN ls -l /app/build/bin/www
+RUN ls -l /app/Web_Client/dist
+
+# =====================================
 
 # Stage 2: Runtime stage
 FROM scratch
@@ -39,12 +46,12 @@ FROM scratch
 COPY --from=build /app/build/bin/sharepaste /sharepaste
 
 # Copy the front end files
-COPY --from=build /app/build/bin/www /www
+COPY --from=build /app/Web_Client/dist /
 
 # Expose the port on which the API will listen
 EXPOSE 8080
 
-# MAake sure sharepaste exists
+# Make sure sharepaste exists
 RUN ["/sharepaste", "--test"]
 
 

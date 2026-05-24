@@ -28,7 +28,7 @@ namespace sharepaste
         else
             printLine("[PASS] Found web directory");
 
-        const std::string index = "./www/index.html";
+        const std::string index = "./index.html";
         if (!std::filesystem::exists(index))
         {
             printLine("[WARNING] Index.html not found");
