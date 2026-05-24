@@ -18,9 +18,6 @@ WORKDIR /app
 COPY src ./src
 COPY CMakeLists.txt .
 
-# TODO temp : remove old frontend files to avoid confusion. Once react is fully integrated remove this.
-RUN rm -rf /src/frontend
-
 # Create build directory
 RUN mkdir build
 
