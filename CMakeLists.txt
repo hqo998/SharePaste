@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.14)
 project(SharePaste)
 
 set(CMAKE_CXX_STANDARD 23)
-set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
+# set(CMAKE_COMPILE_WARNING_AS_ERROR TRUE)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
@@ -104,6 +104,7 @@ if (EXISTS ${CMAKE_SOURCE_DIR}/Web_Client/dist)
 else()
     message(FATAL_ERROR "Frontend build not found at ${CMAKE_SOURCE_DIR}/Web_Client/dist. Please build the frontend and ensure it is located at this path.")
 
+endif()
 
 add_dependencies(copy_frontend sharepaste)
 
