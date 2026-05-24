@@ -50,7 +50,7 @@ void addSecurityHeaders(httplib::Response &res)
     res.set_header("X-Content-Type-Options", "nosniff");
     res.set_header("server", "server");
     res.set_header("Referrer-Policy", "strict-origin-when-cross-origin");
-    res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; object-src 'none';");
+    res.set_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; object-src 'none';");
     // block these
     res.set_header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 } // addSecurityHeaders
@@ -292,6 +292,13 @@ int main(int argc, char *argv[])
     if (!ret)
     {
         sharepaste::printLine("Cant mount /www to ./www");
+        exit(-1);
+    }
+ 
+    auto rep = svr.set_mount_point("/assets", "./assets");
+    if (!rep)
+    {
+        sharepaste::printLine("Cant mount /assets to ./assets");
         exit(-1);
     }
 
