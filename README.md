@@ -2,7 +2,7 @@
 
 # SharePaste
 
-<img src="./src/frontend/favicon/favicon.svg" width="350" />
+<img src="./Web_Client/public/www/favicon.svg" width="350" />
 
 <!-- <p align="center">
 <img alt="Static Badge" src="https://img.shields.io/badge/Docker%20Image%20Size%20-7.5MB-blue?style=flat&logo=docker&link=https%3A%2F%2Fgithub.com%2Fhqo998%2FSharePaste%2Fpkgs%2Fcontainer%2Fsharepaste">
