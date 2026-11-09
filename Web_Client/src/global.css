@@ -1,1 +1,212 @@
 @import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+
+  /* Core surfaces */
+  --bg-chrome: #0d0d0d;
+  --bg-canvas: #1f1f22;
+  --bg-gutter: #292929;
+  --bg-elevated: #222226;
+
+  /* Controls & borders */
+  --bg-control: #323232;
+  --bg-control-hover: #3c3c3c;
+  --bg-control-active: #27272a;
+  --border-control: #4a4a4f;
+  --border-subtle: #38383d;
+
+  /* Typography */
+  --text-primary: #e4e4e7;
+  --text-secondary: #b9b9c0;
+  --text-muted: #909098;
+
+  /* Brand & semantic accents */
+  --accent-amber: #ffb319;
+  --accent-amber-subtle: rgba(255, 179, 25, 0.14);
+  --accent-success: #33c175;
+  --accent-danger: #f87171;
+  --accent-link: #60a5fa;
+  --accent-link-hover: #93c5fd;
+
+  /* Scrollbars */
+  --scrollbar-thumb: #63636b;
+  --scrollbar-track: #18181b;
+
+  /* Font stacks */
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Browser surfaces: text selection, scrollbars, focus rings, links */
+::selection {
+  background-color: var(--accent-amber);
+  color: var(--bg-chrome);
+}
+
+.sp-scroller {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+@supports not (scrollbar-color: auto) {
+  .sp-scroller::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .sp-scroller::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 5px;
+  }
+
+  .sp-scroller::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+}
+
+:where(a:any-link, button, input, textarea):focus-visible {
+  outline: 2px solid var(--accent-amber);
+  outline-offset: 2px;
+}
+
+/* Editor textarea gets subtle top-bar/caret focus cue instead of inner clipping outline */
+.sp-editor-textarea {
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  caret-color: var(--accent-amber);
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+  tab-size: 2;
+}
+
+.sp-editor-textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.sp-editor-textarea:focus-visible {
+  outline: none;
+  box-shadow: inset 2px 0 0 0 var(--accent-amber);
+}
+
+.sp-gutter {
+  background-color: var(--bg-gutter);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  border-right: 1px solid var(--border-subtle);
+}
+
+/* Shared toolbar & footer button primitive */
+.sp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-height: 2.125rem;
+  padding: 0.375rem 1.125rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-control);
+  background-color: var(--bg-control);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: background-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 100ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sp-btn:hover:not(:disabled) {
+  background-color: var(--bg-control-hover);
+  border-color: #5c5c63;
+}
+
+.sp-btn:active:not(:disabled) {
+  background-color: var(--bg-control-active);
+  transform: translateY(1px);
+}
+
+.sp-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sp-btn[aria-pressed="true"] {
+  border-color: var(--accent-amber);
+  background-color: var(--accent-amber-subtle);
+  color: #ffffff;
+}
+
+.sp-btn[aria-pressed="true"]:hover:not(:disabled) {
+  background-color: rgba(255, 179, 25, 0.22);
+}
+
+@media (pointer: coarse) {
+  .sp-btn {
+    min-height: 2.5rem;
+    padding-inline: 1rem;
+  }
+}
+
+/* Share link field */
+.sp-share-input {
+  min-height: 2.125rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: 0.375rem;
+  border: 1px solid var(--border-control);
+  background-color: var(--bg-control);
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.2;
+  transition: border-color 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sp-share-input::placeholder {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+.sp-share-input[data-state="copied"] {
+  border-color: var(--accent-success);
+  box-shadow: 0 0 0 1px var(--accent-success);
+  color: #ffffff;
+}
+
+.sp-share-input[data-state="error"] {
+  border-color: var(--accent-danger);
+  color: var(--accent-danger);
+}
+
+.sp-link {
+  color: var(--accent-link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transition: color 150ms ease;
+}
+
+.sp-link:hover {
+  color: var(--accent-link-hover);
+}

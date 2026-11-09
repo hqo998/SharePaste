@@ -1,37 +1,56 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
+const FOOTER_STORAGE_KEY = "footerVisible";
 
 export default function Footer() {
-  const [ isVisible, setIsVisible] = useState(true);
-
-  useEffect(() => {
-    const storageData = sessionStorage.getItem("footerVisible");
-    if (storageData === "false") {
-      setIsVisible(false);
+  const [isVisible, setIsVisible] = useState(() => {
+    try {
+      return (
+        sessionStorage.getItem(FOOTER_STORAGE_KEY) !== "false" &&
+        sessionStorage.getItem("isFooterClosed") !== "true"
+      );
+    } catch {
+      return true;
     }
-  }, []);
+  });
 
   const hideFooter = () => {
     setIsVisible(false);
-    sessionStorage.setItem("footerVisible", "false");
+    try {
+      sessionStorage.setItem(FOOTER_STORAGE_KEY, "false");
+    } catch {
+      // Ignore storage errors in private browsing
+    }
   };
 
   if (!isVisible) {
     return null;
   }
+
   return (
-    <footer id="footerBar" className="flex items-center gap-3 p-3 bg-[#0d0d0d] overflow-x-auto whitespace-nowrap">
-      <span className="mx-auto text-[15px] font-bold font-sans opacity-80 text-white">
+    <footer
+      id="footerBar"
+      className="flex items-center justify-between gap-3 px-3 py-2 bg-[var(--bg-chrome)] border-t border-[var(--border-subtle)] overflow-x-auto whitespace-nowrap"
+    >
+      <p className="m-0 mx-auto text-sm sm:text-[15px] font-medium text-[var(--text-secondary)]">
         <span>Check out </span>
-        <a href="https://github.com/hqo998/SharePaste" target="_blank" rel="noreferrer" className="text-blue-500 hover:underline">
+        <a
+          href="https://github.com/hqo998/SharePaste"
+          target="_blank"
+          rel="noreferrer"
+          className="sp-link font-semibold"
+        >
           SharePaste on GitHub
         </a>
         <span>!</span>
-      </span>
-      
+      </p>
+
       <button
         id="footerCloseButton"
-        className="bg-[#323232] hover:bg-[#3c3c3c] border border-[#444444] text-[#d6d6d6] font-bold px-6 py-1.5 rounded-md transition-all active:top-px relative shadow-[inset_0_1px_0_0_#323232]"
+        type="button"
+        className="sp-btn text-sm py-1 px-3.5"
         onClick={hideFooter}
+        aria-label="Dismiss footer banner"
       >
         Close
       </button>

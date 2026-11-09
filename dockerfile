@@ -16,6 +16,7 @@ WORKDIR /app
 
 # Copy the source code into the container
 COPY src ./src
+COPY tests ./tests
 COPY CMakeLists.txt .
 
 # Create build directory
