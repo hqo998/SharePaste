@@ -108,3 +108,26 @@ endif()
 
 add_dependencies(copy_frontend sharepaste)
 
+# Lightweight unit test executable + CTest integration
+enable_testing()
+
+add_executable(sharepaste_tests
+    tests/test_main.cpp
+    src/backend/dbmanager/dbmanager.cpp
+    src/backend/utility/utility.cpp
+    src/backend/ratelimiter/ratelimiter.cpp
+)
+
+target_include_directories(sharepaste_tests PUBLIC
+    ${CMAKE_SOURCE_DIR}/src/backend/dbmanager
+    ${CMAKE_SOURCE_DIR}/src/backend/utility
+    ${CMAKE_SOURCE_DIR}/src/backend/ratelimiter
+    ${CMAKE_SOURCE_DIR}/tests
+)
+
+target_precompile_headers(sharepaste_tests PRIVATE <vector> <string> <sqlite3.h> <httplib.h> <nlohmann/json.hpp>)
+target_link_libraries(sharepaste_tests PRIVATE sqlite3_lib)
+
+add_test(NAME SharePasteUnitTests COMMAND sharepaste_tests)
+
+
