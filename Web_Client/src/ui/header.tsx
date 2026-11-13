@@ -115,7 +115,7 @@ export default function Header({
       </button>
 
       <button
-        id="shareButton"
+        id="sp-share-btn"
         type="button"
         className="sp-btn"
         onClick={shareHandle}
@@ -126,7 +126,7 @@ export default function Header({
       </button>
 
       <input
-        id="shareLink"
+        id="sp-share-url"
         className="sp-share-input w-56 sm:w-72 shrink-0 read-only:cursor-pointer"
         type="text"
         readOnly
